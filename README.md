@@ -5,7 +5,11 @@
 **Turn your folder of AI agents into a holographic, voice-controlled command centre.**
 Claude is the brain, ElevenLabs is the voice, and it reads your agents folder to build itself.
 
+**[▶ Try the live demo](https://jarvis-command-centre-demo.vercel.app)** · [Quick start](#quick-start) · [Claude Code](#with-claude-code-recommended) · [Connections](#connections-your-keys-your-machine)
+
 <img src="docs/dashboard.jpg" alt="The command centre: departments orbiting the portal, live voice console on the right" width="100%">
+
+<sub>The demo is a fictional company with recorded voice. Live conversation is switched off there because it needs your own Claude key — run it locally to talk to it.</sub>
 
 </div>
 
@@ -133,6 +137,8 @@ npm run deploy
 ```
 
 This builds the page and uploads your keys from `.env` as **encrypted** Vercel environment variables. It also creates an access code that gates the paid live endpoints, deploys to production, and prints your URL. To unlock live voice on any device, open `https://<your-site>.vercel.app/#code=<JARVIS_ACCESS_CODE from .env>`. Anyone without the code still sees the dashboard and hears the recorded briefing. Use `npm run deploy -- --no-env` for a keyless showcase.
+
+Deploys are staged in `~/.jarvis-command-centre/deploy/<project>/` — outside your repo, so Vercel never connects to your Git remote and a `git push` never triggers a build of the raw source.
 
 ---
 

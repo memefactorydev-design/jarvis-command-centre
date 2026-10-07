@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Publish your command centre to Vercel: `npm run deploy`
 //
-// Builds, stages a clean folder (.deploy/<project>/ — the page, assets, voice clips and the two API functions only),
+// Builds, stages a clean folder (~/.jarvis-command-centre/deploy/<project>/ — the page, assets, voice clips and the two
+// API functions only, outside any git repo),
 // uploads your keys from .env as encrypted Vercel environment variables, and deploys to production.
 // Hosted mode needs an access code for the live (paid) endpoints: one is generated into .env if you don't have one,
 // and the unlock link (site URL + #code=…) is printed so you can open it on any device.
@@ -13,6 +14,7 @@
 // Requires the Vercel CLI (npm i -g vercel) and `vercel login` once.
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { P, ROOT, loadConfig, saveConfig, loadEnv, writeEnv, slug } from "./lib/common.mjs";
@@ -36,13 +38,15 @@ function main() {
   const cfg = loadConfig();
   const env = loadEnv();
   const project = argVal("--project") || cfg.vercelProject || `${slug(cfg.orgName || "my")}-command-centre`.slice(0, 52);
-  if (cfg.vercelProject !== project) { cfg.vercelProject = project; saveConfig(cfg); }
+  // remember the project name — but never create a config just for that (it would replace the demo identity)
+  if (cfg.vercelProject !== project && fs.existsSync(P.config)) { cfg.vercelProject = project; saveConfig(cfg); }
   const noEnv = args.includes("--no-env");
 
   build({ quiet: false });
 
-  // stage: keep .vercel (project link) between runs, refresh everything else
-  const stage = path.join(ROOT, ".deploy", project);
+  // stage OUTSIDE any git repo (otherwise `vercel link` connects the project to your Git remote and every push would
+  // trigger a raw-repo build); keep .vercel (the project link) between runs, refresh everything else
+  const stage = path.join(os.homedir(), ".jarvis-command-centre", "deploy", project);
   fs.mkdirSync(stage, { recursive: true });
   for (const f of fs.readdirSync(stage)) if (f !== ".vercel") fs.rmSync(path.join(stage, f), { recursive: true, force: true });
   copy(P.public, stage);                                  // index.html, assets/, voice/
@@ -76,7 +80,7 @@ function main() {
   const alias = (out.match(/Aliased\s+(https:\/\/[\w.-]+\.vercel\.app)/) || [])[1];
   const url = alias || (out.match(/https:\/\/[\w.-]+\.vercel\.app/) || [])[0];
   if (d.status !== 0 || !url) { console.error(out.slice(-1500)); process.exit(1); }
-  fs.writeFileSync(path.join(ROOT, ".deploy", "last.json"), JSON.stringify({ url, project, at: new Date().toISOString() }, null, 2));
+  fs.writeFileSync(path.join(path.dirname(stage), "last.json"), JSON.stringify({ url, project, at: new Date().toISOString() }, null, 2));
   console.log(`\n  ◉ Deployed → ${url}`);
   if (!noEnv) console.log(`    Unlock live voice on any device with: ${url}/#code=<JARVIS_ACCESS_CODE from your .env>\n    (the code stays in .env — share that link only with people you trust)\n`);
   else console.log("    Deployed without keys: the dashboard and recorded clips work; live chat stays offline.\n");

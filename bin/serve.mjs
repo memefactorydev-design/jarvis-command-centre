@@ -83,7 +83,7 @@ async function pipeWebResponse(webRes, res) {
 function localState() {
   cfg = loadConfig();
   const roster = readJSON(P.data, null);
-  const manifest = readJSON(path.join(P.voice, "manifest.json"), null);
+  const manifest = readJSON(path.join(roster ? P.voice : P.demoVoice, "manifest.json"), null);
   return {
     mode: "local",
     anthropic: { connected: Boolean(process.env.ANTHROPIC_API_KEY), masked: mask(process.env.ANTHROPIC_API_KEY) },

@@ -1,0 +1,127 @@
+{
+  "clips": {
+    "briefing": {
+      "hash": "8b7e2affec5f4ba2",
+      "file": "briefing.mp3",
+      "text": "Good day, sir. Workforce briefing for Helix Studio. Fourteen agents are on the roster: seven live, four in testing, and three blocked. Live: Lead Qualifier, Inbox Triage, Bookkeeper, Ads Analyst, Project Steward, Daily Brief, and 1 more. In testing: Follow up Writer, Complaint Handler, Cash Forecaster, Content Studio. Blocked: Deal Desk is waiting on Read access to the 2027 price book sheet; Invoice Chaser is waiting on Jordan approves the three reminder templates; Release Notes is waiting on Reconnect the Notion integration. That concludes the briefing."
+    },
+    "greeting": {
+      "hash": "c3e0248bde249b9a",
+      "file": "greeting.mp3",
+      "text": "Welcome back, sir. JARVIS online, and the workforce roster is loaded. Press Live and simply talk to me, or ask about any agent by name."
+    },
+    "summary": {
+      "hash": "c3bae23b02c0e659",
+      "file": "summary.mp3",
+      "text": "Fourteen agents: seven live, four in testing, three blocked. Shall I go through the blocked items?"
+    },
+    "live": {
+      "hash": "4719fa688103ee28",
+      "file": "live.mp3",
+      "text": "Seven agents are live: Lead Qualifier, Inbox Triage, Bookkeeper, Ads Analyst, Project Steward, Daily Brief, PR Reviewer."
+    },
+    "testing": {
+      "hash": "8d9ca60243d202e7",
+      "file": "testing.mp3",
+      "text": "Four agents are in testing or shadow mode: Follow up Writer, Complaint Handler, Cash Forecaster, Content Studio."
+    },
+    "blocked": {
+      "hash": "039202c5c6cc9f06",
+      "file": "blocked.mp3",
+      "text": "Three agents are blocked. Deal Desk is waiting on Read access to the 2027 price book sheet; Invoice Chaser is waiting on Jordan approves the three reminder templates; Release Notes is waiting on Reconnect the Notion integration."
+    },
+    "departments": {
+      "hash": "802569e36d813bd0",
+      "file": "departments.mp3",
+      "text": "The roster has six departments: Sales with three, Customer Support with two, Finance with three, Marketing with two, Operations with two, Engineering with two."
+    },
+    "help": {
+      "hash": "3e9ad0e8dd01bb97",
+      "file": "help.mp3",
+      "text": "You can ask: give me the briefing; what is live; what is blocked; what is in testing; list the departments; or how is, followed by an agent's name."
+    },
+    "unknown": {
+      "hash": "d15805bc8e74868e",
+      "file": "unknown.mp3",
+      "text": "I did not catch an agent or a topic in that, sir. Try: what is blocked, or name an agent."
+    },
+    "bye": {
+      "hash": "374f019f0ddb7a7a",
+      "file": "bye.mp3",
+      "text": "Very good, sir. I shall keep watch."
+    },
+    "agent-lead-qualifier": {
+      "hash": "715970fd7754ea47",
+      "file": "agent-lead-qualifier.mp3",
+      "text": "Lead Qualifier, in Sales, is live. Live since March. Hand-off: Follow up Writer once a call is booked."
+    },
+    "agent-follow-up-writer": {
+      "hash": "185e12518ee74a45",
+      "file": "agent-follow-up-writer.mp3",
+      "text": "Follow up Writer, in Sales, is in testing. Shadow mode: drafts land in reps' Drafts folders; 14 of the last 20 were sent unedited. Waiting on: 20 unedited sends in a row. Hand-off: Reps review and send every draft."
+    },
+    "agent-deal-desk": {
+      "hash": "d58ebc8425c01745",
+      "file": "agent-deal-desk.mp3",
+      "text": "Deal Desk, in Sales, is blocked. Built, but cannot read the new price book yet. Waiting on: Read access to the 2027 price book sheet. Hand-off: Jordan for discounts above 15%."
+    },
+    "agent-inbox-triage": {
+      "hash": "3fa38e1a90f749f1",
+      "file": "agent-inbox-triage.mp3",
+      "text": "Inbox Triage, in Customer Support, is live. Live. Hand-off: Complaint Handler for anything upset or urgent."
+    },
+    "agent-complaint-handler": {
+      "hash": "28e8855d06e8dc9c",
+      "file": "agent-complaint-handler.mp3",
+      "text": "Complaint Handler, in Customer Support, is in testing. Testing on last quarter's complaints before it sees live ones. Waiting on: Review of 30 historic cases by Sam. Hand-off: Sam decides every outcome."
+    },
+    "agent-bookkeeper": {
+      "hash": "535b416baa34d0a1",
+      "file": "agent-bookkeeper.mp3",
+      "text": "Bookkeeper, in Finance, is live. Live in assisted mode: suppliers with three agreeing posts are coded automatically. Hand-off: Jordan for new suppliers."
+    },
+    "agent-cash-forecaster": {
+      "hash": "26b3d88aebd90f3e",
+      "file": "agent-cash-forecaster.mp3",
+      "text": "Cash Forecaster, in Finance, is in testing. Running in parallel with Jordan's spreadsheet for two weeks. Waiting on: Two matching weeks against the manual sheet. Hand-off: Jordan releases every payment."
+    },
+    "agent-invoice-chaser": {
+      "hash": "6299b52a5f86d88b",
+      "file": "agent-invoice-chaser.mp3",
+      "text": "Invoice Chaser, in Finance, is blocked. Waiting on the reminder wording to be approved. Waiting on: Jordan approves the three reminder templates. Hand-off: Jordan sends."
+    },
+    "agent-ads-analyst": {
+      "hash": "1a519e5eaf673707",
+      "file": "agent-ads-analyst.mp3",
+      "text": "Ads Analyst, in Marketing, is live. Live; the Monday brief lands in #marketing. Hand-off: Mia decides budget changes."
+    },
+    "agent-content-studio": {
+      "hash": "9f291e697bbdcc17",
+      "file": "agent-content-studio.mp3",
+      "text": "Content Studio, in Marketing, is in testing. Mia reviews every piece before it is published. Hand-off: Mia publishes."
+    },
+    "agent-project-steward": {
+      "hash": "5f09bb5ac17fd6e1",
+      "file": "agent-project-steward.mp3",
+      "text": "Project Steward, in Operations, is live. Live. Hand-off: Sam for anything without a project owner."
+    },
+    "agent-daily-brief": {
+      "hash": "5444bc77a51a07cd",
+      "file": "agent-daily-brief.mp3",
+      "text": "Daily Brief, in Operations, is live. Installed user wide, so it works in every Claude Code session."
+    },
+    "agent-pr-reviewer": {
+      "hash": "9ae8eb7b06c7f117",
+      "file": "agent-pr-reviewer.mp3",
+      "text": "PR Reviewer, in Engineering, is live. Live on every repository. Hand-off: The author resolves each comment."
+    },
+    "agent-release-notes": {
+      "hash": "3a4a3a8232ab1aff",
+      "file": "agent-release-notes.mp3",
+      "text": "Release Notes, in Engineering, is blocked. The Notion integration was revoked during a workspace move. Waiting on: Reconnect the Notion integration. Hand-off: Mia edits before publishing."
+    }
+  },
+  "voice_id": "onwK4e9ZLuTAKqWW03F9",
+  "voice_name": "Daniel",
+  "generated": "2026-10-07 01:09"
+}

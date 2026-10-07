@@ -1,0 +1,23 @@
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# your own configuration and roster (generated from your agents folder)
+jarvis.config.json
+data/roster.json
+data/inventory.json
+data/CHANGES.md
+data/voice/
+
+# build output
+public/
+api/_lib/roster-context.js
+.deploy/
+.vercel/
+
+# tooling
+node_modules/
+tools/.stems/
+__pycache__/
+.DS_Store

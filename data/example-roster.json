@@ -1,0 +1,577 @@
+{
+  "demo": true,
+  "identity": {
+    "orgName": "Helix Studio",
+    "owner": {
+      "name": "Alex Morgan",
+      "label": "Owner · sole authority on agent behaviour",
+      "line": "Approves every policy change and every agent that goes live."
+    },
+    "tagline": "Every agent drafts; humans send, sign and pay."
+  },
+  "generated": "2026-10-07 09:00",
+  "last_scan": "demo",
+  "sources": [
+    "demo-agents"
+  ],
+  "team": [
+    {
+      "av": "S",
+      "name": "Sam",
+      "role": "operations lead"
+    },
+    {
+      "av": "P",
+      "name": "Priya",
+      "role": "sales"
+    },
+    {
+      "av": "J",
+      "name": "Jordan",
+      "role": "finance"
+    },
+    {
+      "av": "M",
+      "name": "Mia",
+      "role": "marketing"
+    },
+    {
+      "av": "D",
+      "name": "Dev team",
+      "role": "builds and maintains the agents"
+    }
+  ],
+  "aliases": {
+    "lead bot": "Lead Qualifier",
+    "inbox": "Inbox Triage",
+    "books": "Bookkeeper"
+  },
+  "planned": [
+    [
+      "Agent 13",
+      "Recruiting Screener"
+    ],
+    [
+      "Agent 14",
+      "Contract Reviewer"
+    ],
+    [
+      "Agent 15",
+      "Churn Predictor"
+    ]
+  ],
+  "depts": [
+    {
+      "id": "sales",
+      "name": "Sales",
+      "blurb": "Pipeline, leads and follow-ups",
+      "who": "Priya supervises · reps send",
+      "agents": [
+        {
+          "id": "lead-qualifier",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Lead Qualifier",
+          "job": "Scores every new web and ad lead, enriches it from the CRM, and books the first discovery call into a rep's calendar.",
+          "trigger": [
+            [
+              "Schedule",
+              "Vercel cron · every 15 min"
+            ],
+            [
+              "Webhook",
+              "New form submission on the website"
+            ]
+          ],
+          "connects": [
+            "HubSpot",
+            "Google Calendar",
+            "Gmail",
+            "Slack"
+          ],
+          "model": "Claude Sonnet 5.5",
+          "status": "live",
+          "statusNote": "Live since March. Drafts the booking email; a rep sends it.",
+          "waiting": [],
+          "handoff": [
+            "<b>Follow-up Writer</b> once a call is booked",
+            "<b>Priya</b> for enterprise leads over $50k"
+          ],
+          "skills": [
+            "lead-scoring",
+            "/qualify"
+          ],
+          "path": "sales/lead-qualifier/"
+        },
+        {
+          "id": "follow-up-writer",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Follow-up Writer",
+          "job": "Drafts personal follow-ups after every sales call, in each rep's own voice, with the next step and a date.",
+          "trigger": [
+            [
+              "Schedule",
+              "GitHub Actions · 08:30 Mon–Fri"
+            ],
+            [
+              "Manual",
+              "/followup <deal>"
+            ]
+          ],
+          "connects": [
+            "HubSpot",
+            "Gmail",
+            "Call transcripts"
+          ],
+          "model": "Claude Sonnet 5.5",
+          "status": "testing",
+          "statusNote": "Shadow mode: drafts land in reps' Drafts folders; 14 of the last 20 were sent unedited.",
+          "waitingLabel": "Before going live",
+          "waiting": [
+            "20 unedited sends in a row",
+            "Priya signs off the voice profiles"
+          ],
+          "handoff": [
+            "<b>Reps</b> review and send every draft"
+          ],
+          "skills": [
+            "voice-profile",
+            "/followup"
+          ],
+          "path": "sales/follow-up-writer/"
+        },
+        {
+          "id": "deal-desk",
+          "auto": false,
+          "tag": "Codex agent",
+          "name": "Deal Desk",
+          "job": "Builds quotes from the price book, checks discount limits and flags anything that needs a manager.",
+          "trigger": [
+            [
+              "Manual",
+              "Ask in #deal-desk on Slack"
+            ]
+          ],
+          "connects": [
+            "Stripe",
+            "Google Sheets",
+            "Slack"
+          ],
+          "model": "Codex",
+          "status": "blocked",
+          "statusNote": "Built, but cannot read the new price book yet.",
+          "waiting": [
+            "Read access to the 2027 price book sheet",
+            "Discount policy confirmed by Jordan"
+          ],
+          "handoff": [
+            "<b>Jordan</b> for discounts above 15%"
+          ],
+          "path": "sales/deal-desk/"
+        }
+      ]
+    },
+    {
+      "id": "support",
+      "name": "Customer Support",
+      "blurb": "Customers, tickets and complaints",
+      "who": "Sam supervises",
+      "agents": [
+        {
+          "id": "inbox-triage",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Inbox Triage",
+          "job": "Reads the shared support inbox three times a day, classifies every message and drafts replies for the easy ones.",
+          "trigger": [
+            [
+              "Schedule",
+              "Azure timer · 09:00, 13:00, 17:00 daily"
+            ]
+          ],
+          "connects": [
+            "Outlook / Microsoft 365",
+            "Notion",
+            "Slack"
+          ],
+          "model": "Claude Sonnet 5.5",
+          "status": "live",
+          "statusNote": "Live. Never sends: every reply is a draft a human approves.",
+          "waiting": [],
+          "handoff": [
+            "<b>Complaint Handler</b> for anything upset or urgent",
+            "<b>Sam</b> for refunds"
+          ],
+          "skills": [
+            "ticket-triage"
+          ],
+          "path": "support/inbox-triage/"
+        },
+        {
+          "id": "complaint-handler",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Complaint Handler",
+          "job": "Takes escalated complaints, gathers the order history and drafts a calm, specific response plan for a human.",
+          "trigger": [
+            [
+              "Manual",
+              "Hand-off from Inbox Triage"
+            ]
+          ],
+          "connects": [
+            "Shopify",
+            "Outlook / Microsoft 365"
+          ],
+          "model": "Claude Opus 5.5",
+          "status": "testing",
+          "statusNote": "Testing on last quarter's complaints before it sees live ones.",
+          "waitingLabel": "Before going live",
+          "waiting": [
+            "Review of 30 historic cases by Sam"
+          ],
+          "handoff": [
+            "<b>Sam</b> decides every outcome"
+          ],
+          "path": "support/complaint-handler/"
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "Finance",
+      "blurb": "Money in, money out, the books",
+      "who": "Jordan approves everything that moves money",
+      "agents": [
+        {
+          "id": "bookkeeper",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Bookkeeper",
+          "job": "Codes supplier invoices from the accounts inbox and posts them as bills in the accounting system.",
+          "trigger": [
+            [
+              "Schedule",
+              "crontab · 07:00, 12:00, 16:00 Mon–Fri"
+            ]
+          ],
+          "connects": [
+            "Xero",
+            "Gmail",
+            "Google Drive"
+          ],
+          "model": "Claude Sonnet 5.5",
+          "status": "live",
+          "statusNote": "Live in assisted mode: suppliers with three agreeing posts are coded automatically.",
+          "waiting": [],
+          "handoff": [
+            "<b>Jordan</b> for new suppliers",
+            "<b>Cash Forecaster</b> once bills are posted"
+          ],
+          "skills": [
+            "/post-bills"
+          ],
+          "path": "finance/bookkeeper/"
+        },
+        {
+          "id": "cash-forecaster",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Cash Forecaster",
+          "job": "Builds the 13-week cash view every morning and proposes Friday's supplier payment run.",
+          "trigger": [
+            [
+              "Schedule",
+              "Claude desktop routine · 09:00 Mon–Fri"
+            ]
+          ],
+          "connects": [
+            "Xero",
+            "Google Sheets"
+          ],
+          "model": "Claude Opus 5.5",
+          "status": "testing",
+          "statusNote": "Running in parallel with Jordan's spreadsheet for two weeks.",
+          "waitingLabel": "Before going live",
+          "waiting": [
+            "Two matching weeks against the manual sheet"
+          ],
+          "handoff": [
+            "<b>Jordan</b> releases every payment"
+          ],
+          "path": "finance/cash-forecaster/"
+        },
+        {
+          "id": "invoice-chaser",
+          "auto": false,
+          "tag": "Skill",
+          "name": "Invoice Chaser",
+          "job": "Drafts polite, escalating reminders for overdue customer invoices, never more than one a week per customer.",
+          "trigger": [
+            [
+              "Manual",
+              "/chase"
+            ]
+          ],
+          "connects": [
+            "Xero",
+            "Gmail"
+          ],
+          "model": "Any Claude model",
+          "status": "blocked",
+          "statusNote": "Waiting on the reminder wording to be approved.",
+          "waiting": [
+            "Jordan approves the three reminder templates"
+          ],
+          "handoff": [
+            "<b>Jordan</b> sends"
+          ],
+          "skills": [
+            "invoice-chase"
+          ],
+          "path": "finance/invoice-chaser/"
+        }
+      ]
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "blurb": "Campaigns, content and ads",
+      "who": "Mia owns the brand voice",
+      "agents": [
+        {
+          "id": "ads-analyst",
+          "auto": false,
+          "tag": "Skill",
+          "name": "Ads Analyst",
+          "job": "Pulls last week's ad performance, names what to scale and what to cut, and writes a one-page brief.",
+          "trigger": [
+            [
+              "Schedule",
+              "Vercel cron · Mon 07:00"
+            ]
+          ],
+          "connects": [
+            "Meta Ads",
+            "Google Sheets",
+            "Slack"
+          ],
+          "model": "Claude Sonnet 5.5",
+          "status": "live",
+          "statusNote": "Live; the Monday brief lands in #marketing.",
+          "waiting": [],
+          "handoff": [
+            "<b>Mia</b> decides budget changes"
+          ],
+          "skills": [
+            "meta-ads-report"
+          ],
+          "path": "marketing/ads-analyst/"
+        },
+        {
+          "id": "content-studio",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Content Studio",
+          "job": "Turns each finished project into a case study, three social posts and a newsletter paragraph.",
+          "trigger": [
+            [
+              "Manual",
+              "/case-study <project>"
+            ]
+          ],
+          "connects": [
+            "Notion",
+            "Google Drive",
+            "Canva"
+          ],
+          "model": "Claude Opus 5.5",
+          "status": "testing",
+          "statusNote": "Mia reviews every piece before it is published.",
+          "waiting": [],
+          "handoff": [
+            "<b>Mia</b> publishes"
+          ],
+          "skills": [
+            "brand-voice",
+            "/case-study"
+          ],
+          "path": "marketing/content-studio/"
+        }
+      ]
+    },
+    {
+      "id": "ops",
+      "name": "Operations",
+      "blurb": "Projects, scheduling and coordination",
+      "who": "Sam supervises",
+      "agents": [
+        {
+          "id": "project-steward",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Project Steward",
+          "job": "Opens a Slack channel for every new project, keeps its pinned status card in step with the CRM, and archives it at close-out.",
+          "trigger": [
+            [
+              "Schedule",
+              "Vercel cron · 07:00 daily"
+            ]
+          ],
+          "connects": [
+            "Slack",
+            "HubSpot"
+          ],
+          "model": "Deterministic code",
+          "status": "live",
+          "statusNote": "Live. Writes nothing to clients.",
+          "waiting": [],
+          "handoff": [
+            "<b>Sam</b> for anything without a project owner"
+          ],
+          "path": "ops/project-steward/"
+        },
+        {
+          "id": "daily-brief",
+          "auto": false,
+          "tag": "Skill",
+          "name": "Daily Brief",
+          "job": "Reads the calendar each morning and hands back a one-page rundown with a prep note for every meeting.",
+          "trigger": [
+            [
+              "Manual",
+              "Run it when you sit down"
+            ]
+          ],
+          "connects": [
+            "Google Calendar",
+            "Gmail"
+          ],
+          "model": "Any Claude model",
+          "status": "live",
+          "statusNote": "Installed user-wide, so it works in every Claude Code session.",
+          "waiting": [],
+          "handoff": [],
+          "skills": [
+            "daily-brief"
+          ],
+          "path": "~/.claude/skills/daily-brief/"
+        }
+      ]
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering",
+      "blurb": "Code, builds and reviews",
+      "who": "Dev team",
+      "agents": [
+        {
+          "id": "pr-reviewer",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "PR Reviewer",
+          "job": "Reviews every pull request for bugs and missing tests, and comments with concrete fixes.",
+          "trigger": [
+            [
+              "Webhook",
+              "GitHub pull_request opened"
+            ]
+          ],
+          "connects": [
+            "GitHub",
+            "Linear"
+          ],
+          "model": "Claude Opus 5.5",
+          "status": "live",
+          "statusNote": "Live on every repository.",
+          "waiting": [],
+          "handoff": [
+            "<b>The author</b> resolves each comment"
+          ],
+          "skills": [
+            "/review"
+          ],
+          "path": "engineering/pr-reviewer/"
+        },
+        {
+          "id": "release-notes",
+          "auto": false,
+          "tag": "Claude Code agent",
+          "name": "Release Notes",
+          "job": "Writes customer-facing release notes from merged PRs every Friday.",
+          "trigger": [
+            [
+              "Schedule",
+              "GitHub Actions · Fri 16:00"
+            ]
+          ],
+          "connects": [
+            "GitHub",
+            "Notion"
+          ],
+          "model": "Claude Sonnet 5.5",
+          "status": "blocked",
+          "statusNote": "The Notion integration was revoked during a workspace move.",
+          "waiting": [
+            "Reconnect the Notion integration"
+          ],
+          "handoff": [
+            "<b>Mia</b> edits before publishing"
+          ],
+          "path": "engineering/release-notes/"
+        }
+      ]
+    }
+  ],
+  "sched": [
+    [
+      "every 15 min",
+      "Lead Qualifier",
+      "Vercel cron",
+      "on"
+    ],
+    [
+      "08:30 Mon–Fri",
+      "Follow-up Writer",
+      "GitHub Actions",
+      "on"
+    ],
+    [
+      "09:00, 13:00, 17:00 daily",
+      "Inbox Triage",
+      "Azure timer",
+      "on"
+    ],
+    [
+      "07:00, 12:00, 16:00 Mon–Fri",
+      "Bookkeeper",
+      "crontab",
+      "on"
+    ],
+    [
+      "09:00 Mon–Fri",
+      "Cash Forecaster",
+      "Claude desktop routine",
+      "unknown"
+    ],
+    [
+      "Mon 07:00",
+      "Ads Analyst",
+      "Vercel cron",
+      "on"
+    ],
+    [
+      "07:00 daily",
+      "Project Steward",
+      "Vercel cron",
+      "on"
+    ],
+    [
+      "Fri 16:00",
+      "Release Notes",
+      "GitHub Actions",
+      "off"
+    ]
+  ]
+}

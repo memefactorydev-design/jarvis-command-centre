@@ -1,0 +1,24 @@
+{
+  "name": "jarvis-command-centre",
+  "version": "1.0.0",
+  "description": "Turn your folder of AI agents into a holographic, voice-controlled command centre — Claude for the brain, ElevenLabs for the voice.",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/memefactorydev-design/jarvis-command-centre.git" },
+  "keywords": ["claude", "claude-code", "agents", "ai-agents", "elevenlabs", "voice-assistant", "dashboard", "jarvis", "anthropic"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "setup": "node bin/setup.mjs",
+    "start": "node bin/serve.mjs",
+    "dev": "node bin/serve.mjs --open",
+    "scan": "node bin/scan.mjs",
+    "build": "node bin/build.mjs",
+    "voice": "node bin/voice.mjs",
+    "deploy": "node bin/deploy.mjs",
+    "doctor": "node bin/doctor.mjs",
+    "postinstall": "node bin/build.mjs --quiet"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0"
+  }
+}

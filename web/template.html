@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__ASSISTANT_DOTTED__ · Command Centre · __ORG_NAME__</title>
+<meta name="description" content="__ASSISTANT__ — a holographic, voice-controlled command centre for the __ORG_NAME__ AI workforce: every agent, trigger, connection, status, blocker and hand-off.">
+<link rel="icon" type="image/jpeg" href="assets/emblem.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #04080f; --bg-2: #07111f; --panel: rgba(8, 20, 36, .78); --panel-2: rgba(12, 30, 52, .7);
+    --line: rgba(25, 211, 255, .20); --line-2: rgba(25, 211, 255, .45); --grid: rgba(25, 211, 255, .06);
+    --cyan: #19d3ff; --cyan-2: #8be9ff; --gold: #ffb347; --text: #d6f0fb; --muted: #86aac3; --faint: #4f7390;
+    --live: #38ff9c; --testing: #ffc24d; --blocked: #ff5c6c; --human: #c9a8ff;
+    --live-bg: rgba(56,255,156,.10); --testing-bg: rgba(255,194,77,.10); --blocked-bg: rgba(255,92,108,.10); --human-bg: rgba(201,168,255,.10);
+    --glow: 0 0 18px rgba(25,211,255,.25), inset 0 0 24px rgba(25,211,255,.05);
+    --hero-bg: #02050a;
+    --font-head: "Rajdhani", "Avenir Next Condensed", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  }
+  :root[data-theme="light"] {
+    --bg: #e7edf3; --bg-2: #f3f6f9; --panel: rgba(255,255,255,.86); --panel-2: rgba(244,248,252,.9);
+    --line: rgba(0, 90, 140, .18); --line-2: rgba(0, 90, 140, .4); --grid: rgba(0, 90, 140, .06);
+    --cyan: #0a6ea6; --cyan-2: #0a4f7a; --gold: #b06400; --text: #0d1a25; --muted: #4a6274; --faint: #7d93a5;
+    --live: #118a48; --testing: #9a5b00; --blocked: #bb2f3c; --human: #5b4bb5;
+    --live-bg: rgba(17,138,72,.10); --testing-bg: rgba(154,91,0,.10); --blocked-bg: rgba(187,47,60,.10); --human-bg: rgba(91,75,181,.10);
+    --glow: 0 1px 2px rgba(10,30,50,.08), 0 6px 20px rgba(10,30,50,.06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 var(--font-body); -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(25,211,255,.10), transparent 60%),
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 40px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 40px 100%;
+  }
+  :root:not([data-theme="light"]) body::after {
+    content: ""; position: fixed; inset: 0; z-index: 30; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 3px);
+  }
+  a { color: var(--cyan); text-decoration: none; } a:hover { text-decoration: underline; }
+  code { font-family: var(--font-mono); font-size: .92em; }
+  .mono { font-family: var(--font-mono); letter-spacing: .04em; }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 0 16px 72px; }
+  h1, h2, h3 { font-family: var(--font-head); letter-spacing: .04em; text-transform: uppercase; }
+
+  /* ---------- boot overlay ---------- */
+  #boot {
+    position: fixed; inset: 0; z-index: 100; background: #02050a; color: var(--cyan-2);
+    display: grid; place-items: center; text-align: center; font-family: var(--font-mono);
+  }
+  #boot .inner { display: grid; gap: 14px; justify-items: center; max-width: 520px; padding: 24px; }
+  #boot img { width: 120px; height: 120px; border-radius: 50%; mix-blend-mode: screen; filter: drop-shadow(0 0 22px rgba(25,211,255,.5)); animation: spin 14s linear infinite; }
+  #boot .lines { min-height: 4.5em; font-size: 13px; color: var(--muted); text-align: left; width: 100%; }
+  #boot .lines div::before { content: "› "; color: var(--cyan); }
+  #boot button {
+    font: 600 15px/1 var(--font-head); letter-spacing: .18em; text-transform: uppercase; cursor: pointer;
+    color: #02050a; background: var(--cyan); border: 0; border-radius: 4px; padding: 12px 26px;
+    box-shadow: 0 0 24px rgba(25,211,255,.55); transition: transform .12s ease;
+  }
+  #boot button:hover { transform: translateY(-1px); }
+  #boot .skip { color: var(--faint); font-size: 12px; cursor: pointer; }
+  #boot.hide { animation: bootout .5s ease forwards; pointer-events: none; }
+  @keyframes bootout { to { opacity: 0; visibility: hidden; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spinr { to { transform: rotate(-360deg); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); filter: brightness(.95); } 50% { transform: scale(1.04); filter: brightness(1.25); } }
+  @keyframes flicker { 0%, 97%, 100% { opacity: 1; } 98% { opacity: .55; } 99% { opacity: .9; } }
+  @keyframes dash { to { stroke-dashoffset: -400; } }
+  @keyframes sweep { to { transform: rotate(360deg); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- header ---------- */
+  header.top {
+    position: sticky; top: 0; z-index: 20; backdrop-filter: blur(10px) saturate(1.3);
+    background: color-mix(in srgb, var(--bg) 80%, transparent); border-bottom: 1px solid var(--line);
+  }
+  .top-inner { max-width: 1500px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 260px; }
+  .brand img { width: 40px; height: 40px; border-radius: 50%; mix-blend-mode: screen; filter: drop-shadow(0 0 8px rgba(25,211,255,.6)); }
+  :root[data-theme="light"] .brand img, :root[data-theme="light"] #boot img { mix-blend-mode: normal; border-radius: 50%; }
+  .brand h1 { margin: 0; font-size: 20px; font-weight: 700; color: var(--cyan-2); line-height: 1; }
+  .brand h1 small { display: block; font-size: 11px; font-weight: 500; letter-spacing: .22em; color: var(--muted); margin-top: 4px; }
+  .readout { display: flex; gap: 14px; align-items: center; font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+  .readout b { color: var(--cyan); font-weight: 400; }
+  .readout .led { width: 8px; height: 8px; border-radius: 50%; background: var(--live); box-shadow: 0 0 10px var(--live); display: inline-block; margin-right: 6px; animation: flicker 6s infinite; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); padding: 2px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 6px 11px; border-radius: 3px;
+    font: 600 12px/1 var(--font-head); letter-spacing: .12em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .seg button .n { font-family: var(--font-mono); color: var(--faint); }
+  .seg button[aria-pressed="true"] { background: rgba(25,211,255,.14); color: var(--cyan-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .seg button[aria-pressed="true"] .n { color: var(--cyan); }
+  .search {
+    border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 4px; padding: 7px 12px;
+    font: 13px var(--font-mono); width: 230px;
+  }
+  .search::placeholder { color: var(--faint); }
+  .search:focus { outline: 1px solid var(--cyan); outline-offset: 1px; }
+  .icon-btn {
+    border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer; border-radius: 4px;
+    width: 34px; height: 34px; display: inline-grid; place-items: center; font: 14px var(--font-mono);
+  }
+  .icon-btn[aria-pressed="true"] { color: var(--cyan); border-color: var(--line-2); box-shadow: 0 0 12px rgba(25,211,255,.25); }
+  .icon-btn:hover { color: var(--cyan-2); }
+
+  /* ---------- hero: portal + voice console ---------- */
+  .hero {
+    margin: 22px 0 10px; display: grid; gap: 18px; grid-template-columns: 1fr; align-items: stretch;
+  }
+  @media (min-width: 1100px) { .hero { grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr); } }
+  .panel {
+    position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--glow);
+    backdrop-filter: blur(6px);
+  }
+  .panel::before, .panel::after, .corner::before, .corner::after {
+    content: ""; position: absolute; width: 14px; height: 14px; border: 2px solid var(--cyan); opacity: .8; pointer-events: none;
+  }
+  .panel::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; border-radius: 6px 0 0 0; }
+  .panel::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; border-radius: 0 0 6px 0; }
+  .panel .ptitle {
+    position: absolute; top: -9px; left: 16px; padding: 0 8px; background: var(--bg); color: var(--cyan); font: 600 11px/18px var(--font-head);
+    letter-spacing: .24em; text-transform: uppercase;
+  }
+  .portal-panel { background: var(--hero-bg); border-color: rgba(25,211,255,.25); overflow: hidden; min-height: 560px; padding: 24px 16px 16px; }
+  .portal-panel .bg { position: absolute; inset: 0; background: url("assets/hud_bg.jpg") center / cover; opacity: .55; }
+  .portal-panel .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 35%, rgba(2,5,10,.85) 100%); }
+  .owner { position: relative; z-index: 2; text-align: center; margin-bottom: 8px; }
+  .owner .k { font: 500 11px/1 var(--font-head); letter-spacing: .26em; color: var(--human); text-transform: uppercase; }
+  .owner .v { font: 700 24px/1.1 var(--font-head); letter-spacing: .08em; color: #fff; text-shadow: 0 0 18px rgba(201,168,255,.5); margin: 6px 0 4px; }
+  .owner .d { color: #9fb6c9; font-size: 12.5px; }
+  .humans { position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 8px 0 6px; }
+  .human { display: inline-flex; align-items: center; gap: 7px; border: 1px solid rgba(201,168,255,.35); color: #e4d9ff; background: rgba(201,168,255,.08); border-radius: 3px; padding: 4px 9px 4px 6px; font: 600 11.5px/1 var(--font-head); letter-spacing: .08em; text-transform: uppercase; }
+  .human .av { width: 18px; height: 18px; border-radius: 2px; background: var(--human); color: #120a2a; display: grid; place-items: center; font: 700 10px var(--font-mono); }
+  .human .r { color: #a79bd0; font-weight: 500; letter-spacing: .02em; text-transform: none; }
+
+  .portal { position: relative; z-index: 2; width: min(100%, 560px); margin: 6px auto 0; aspect-ratio: 1; }
+  .portal:not(.flat) { width: min(100% - 180px, 700px); margin: 96px auto 70px; }
+  .portal .layer { position: absolute; inset: 0; display: grid; place-items: center; }
+  .portal video, .portal .ring, .portal .ring2, .portal .orb { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); mix-blend-mode: screen; pointer-events: none; }
+  .portal video { width: 86%; height: 86%; object-fit: cover; opacity: .55; border-radius: 50%; }
+  .portal .ring { width: 72%; height: 72%; border-radius: 50%; animation: spin 48s linear infinite; }
+  .portal .ring2 { width: 54%; height: 54%; border-radius: 50%; opacity: .55; animation: spinr 32s linear infinite; }
+  .portal .orb { width: 30%; height: 30%; border-radius: 50%; animation: pulse 3.6s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(25,211,255,.45)); }
+  .portal .sweep { position: absolute; left: 50%; top: 50%; width: 72%; height: 72%; transform: translate(-50%,-50%); border-radius: 50%; pointer-events: none;
+    background: conic-gradient(from 0deg, transparent 0 78%, rgba(25,211,255,.22) 96%, transparent 100%); mix-blend-mode: screen; animation: sweep 6s linear infinite; }
+  .portal svg.spokes { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .portal svg.spokes line { stroke: rgba(25,211,255,.45); stroke-width: 1; stroke-dasharray: 4 6; animation: dash 12s linear infinite; }
+  .portal svg.spokes circle { fill: var(--cyan); }
+  .core-stats { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 3; pointer-events: none; }
+  .core-stats .big { font: 700 44px/1 var(--font-head); color: #fff; text-shadow: 0 0 24px rgba(25,211,255,.9), 0 0 2px #fff; }
+  .core-stats .lbl { font: 500 10px/1 var(--font-head); letter-spacing: .3em; color: var(--cyan-2); text-transform: uppercase; margin-top: 4px; }
+  .core-stats .row { display: flex; gap: 10px; justify-content: center; margin-top: 8px; font: 12px var(--font-mono); }
+  .core-stats .row span { display: inline-flex; align-items: center; gap: 4px; }
+  .core-stats .row i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dnode {
+    position: absolute; width: 150px; transform: translate(-50%, -50%); z-index: 4; cursor: pointer; text-decoration: none; color: inherit;
+    background: rgba(4,12,22,.85); border: 1px solid var(--line-2); border-radius: 4px; padding: 8px 10px; backdrop-filter: blur(4px);
+    box-shadow: 0 0 16px rgba(25,211,255,.18); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; animation: rise .6s ease both;
+  }
+  .dnode:hover { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 28px rgba(25,211,255,.4); border-color: var(--cyan); text-decoration: none; }
+  .dnode .v { font: 700 13px/1.1 var(--font-head); letter-spacing: .08em; color: #eaf8ff; text-transform: uppercase; }
+  .dnode .d { font: 11px var(--font-mono); color: #8fb3cc; margin-top: 4px; }
+  .dnode .mini { display: flex; gap: 8px; margin-top: 5px; }
+  .pip { display: inline-flex; align-items: center; gap: 4px; font: 11px var(--font-mono); color: var(--muted); }
+  .pip i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .pip.live i { background: var(--live); box-shadow: 0 0 6px var(--live); } .pip.testing i { background: var(--testing); box-shadow: 0 0 6px var(--testing); } .pip.blocked i { background: var(--blocked); box-shadow: 0 0 6px var(--blocked); }
+  .dgrid { position: relative; z-index: 2; display: none; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .dgrid .dnode { position: static; transform: none; width: auto; }
+  .dgrid .dnode:hover { transform: translateY(-2px); }
+  .portal.flat .dnode.radial, .portal.flat svg.spokes { display: none; }
+  .portal.flat ~ .dgrid { display: grid; }
+
+  /* voice console */
+  .console { padding: 22px 16px 16px; display: flex; flex-direction: column; gap: 12px; min-height: 420px; }
+  .console .head { display: flex; align-items: center; gap: 12px; }
+  .console .head img { width: 54px; height: 54px; border-radius: 50%; mix-blend-mode: screen; animation: pulse 3.6s ease-in-out infinite; }
+  :root[data-theme="light"] .console .head img { mix-blend-mode: normal; }
+  .console .head .name { font: 700 22px/1 var(--font-head); letter-spacing: .2em; color: var(--cyan-2); }
+  .console .head .state { font: 11px var(--font-mono); letter-spacing: .12em; color: var(--muted); margin-top: 5px; text-transform: uppercase; }
+  .console .head .state b { color: var(--live); font-weight: 400; }
+  .wave { height: 64px; display: flex; align-items: center; gap: 3px; padding: 0 4px; border: 1px solid var(--line); border-radius: 4px; background: rgba(0,0,0,.25); overflow: hidden; }
+  :root[data-theme="light"] .wave { background: rgba(10,110,166,.05); }
+  .wave i { flex: 1; height: 6px; background: linear-gradient(180deg, var(--cyan-2), var(--cyan)); border-radius: 2px; opacity: .55; transition: height .08s linear; box-shadow: 0 0 6px rgba(25,211,255,.4); }
+  .caption { min-height: 92px; font-size: 14px; line-height: 1.5; color: var(--text); border-left: 2px solid var(--cyan); padding: 6px 10px; background: rgba(25,211,255,.05); }
+  .caption .who { font: 600 10px/1 var(--font-head); letter-spacing: .26em; color: var(--cyan); text-transform: uppercase; margin-bottom: 6px; }
+  .caption .who.you { color: var(--gold); }
+  .caption .cursor::after { content: "▍"; color: var(--cyan); animation: flicker 1s infinite; }
+  .vbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .vbtn {
+    cursor: pointer; border: 1px solid var(--line-2); background: rgba(25,211,255,.08); color: var(--cyan-2); border-radius: 4px; padding: 9px 12px;
+    font: 600 12px/1 var(--font-head); letter-spacing: .14em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; transition: all .12s ease;
+  }
+  .vbtn:hover { background: rgba(25,211,255,.18); box-shadow: 0 0 14px rgba(25,211,255,.3); }
+  .vbtn.primary { background: var(--cyan); color: #02050a; border-color: var(--cyan); box-shadow: 0 0 18px rgba(25,211,255,.45); }
+  .vbtn.primary:hover { filter: brightness(1.1); }
+  .vbtn.listening { background: rgba(255,92,108,.15); border-color: var(--blocked); color: var(--blocked); animation: flicker 1.2s infinite; }
+  .vbtn[disabled] { opacity: .45; cursor: not-allowed; }
+  #livebtn { border-color: var(--live); color: var(--live); background: var(--live-bg); }
+  #livebtn.on { background: rgba(56,255,156,.2); box-shadow: 0 0 22px rgba(56,255,156,.45); animation: flicker 2.4s infinite; }
+  .ask[hidden] { display: none; }
+  .ask { display: flex; gap: 8px; }
+  .ask input { flex: 1; border: 1px solid var(--line); background: rgba(0,0,0,.25); color: var(--text); border-radius: 4px; padding: 9px 12px; font: 13px var(--font-mono); }
+  :root[data-theme="light"] .ask input { background: #fff; }
+  .ask input::placeholder { color: var(--faint); }
+  .console .foot { font: 11px var(--font-mono); color: var(--faint); letter-spacing: .04em; margin-top: auto; }
+  .console .foot a { color: var(--muted); }
+
+  /* ---------- legend ---------- */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; color: var(--muted); font: 12px var(--font-mono); margin: 14px 0 0; letter-spacing: .03em; }
+  .legend .note { color: var(--faint); }
+
+  /* ---------- departments ---------- */
+  section.dept { margin-top: 34px; scroll-margin-top: 90px; }
+  .dept-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line-2); position: relative; }
+  .dept-head::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 120px; height: 1px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .dept-head h2 { margin: 0; font-size: 22px; font-weight: 700; color: var(--cyan-2); }
+  .dept-head h2 .idx { color: var(--faint); font-family: var(--font-mono); font-size: 13px; margin-right: 8px; letter-spacing: .1em; }
+  .dept-head .blurb { color: var(--muted); }
+  .dept-head .who { color: var(--faint); font: 12px var(--font-mono); margin-left: auto; letter-spacing: .03em; }
+  .dept-head .who b { color: var(--muted); font-weight: 400; }
+  .dept-note { color: var(--muted); font-size: 13px; margin: 10px 0 0; padding: 10px 12px; border-left: 2px solid var(--gold); background: rgba(255,179,71,.06); }
+  .grid { display: grid; gap: 14px; margin-top: 16px; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+  .grid.compact { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  @media (max-width: 420px) { .grid, .grid.compact { grid-template-columns: 1fr; } }
+
+  .card {
+    position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 14px 12px;
+    display: flex; flex-direction: column; gap: 10px; box-shadow: var(--glow); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    animation: rise .5s ease both;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--line-2); box-shadow: 0 0 28px rgba(25,211,255,.22); }
+  .card.flash { box-shadow: 0 0 0 2px var(--gold), 0 0 40px rgba(255,179,71,.5); border-color: var(--gold); }
+  .card::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 2px; background: var(--faint); box-shadow: 0 0 10px currentColor; }
+  .card[data-status="live"]::before { background: var(--live); color: var(--live); }
+  .card[data-status="testing"]::before { background: var(--testing); color: var(--testing); }
+  .card[data-status="blocked"]::before { background: var(--blocked); color: var(--blocked); }
+  .card.hidden { display: none; }
+  .card-head { display: flex; align-items: flex-start; gap: 10px; }
+  .card-head .title { flex: 1; min-width: 0; }
+  .tag { font: 600 10.5px/1 var(--font-head); letter-spacing: .22em; text-transform: uppercase; color: var(--faint); }
+  .tag .new { color: var(--gold); margin-left: 6px; text-shadow: 0 0 8px rgba(255,179,71,.6); }
+  .name { font: 700 17px/1.15 var(--font-head); letter-spacing: .04em; margin-top: 4px; color: var(--text); }
+  .job { color: var(--muted); font-size: 13px; margin-top: 5px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border-radius: 3px; padding: 4px 9px 4px 7px; font: 700 10.5px/1 var(--font-head); letter-spacing: .18em; text-transform: uppercase; border: 1px solid currentColor; }
+  .badge i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: currentColor; box-shadow: 0 0 8px currentColor; }
+  .badge.live { color: var(--live); background: var(--live-bg); } .badge.testing { color: var(--testing); background: var(--testing-bg); } .badge.blocked { color: var(--blocked); background: var(--blocked-bg); }
+  dl.facts { margin: 0; display: grid; grid-template-columns: 78px 1fr; gap: 7px 10px; font-size: 12.8px; }
+  dl.facts dt { color: var(--faint); font: 600 10px/1.4 var(--font-head); letter-spacing: .2em; text-transform: uppercase; padding-top: 3px; }
+  dl.facts dd { margin: 0; min-width: 0; }
+  dl.facts dd .status-note { color: var(--muted); }
+  .waiting { margin-top: 5px; padding: 7px 9px; border-radius: 3px; background: var(--blocked-bg); border-left: 2px solid var(--blocked); font-size: 12.5px; }
+  .waiting b { color: var(--blocked); font: 600 10.5px/1.4 var(--font-head); letter-spacing: .18em; text-transform: uppercase; }
+  .waiting.soft { background: var(--testing-bg); border-left-color: var(--testing); } .waiting.soft b { color: var(--testing); }
+  .waiting ul { margin: 4px 0 0; padding-left: 16px; } .waiting li { margin: 1px 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { display: inline-block; border: 1px solid var(--line); background: rgba(25,211,255,.05); color: var(--text); border-radius: 3px; padding: 2px 7px; font: 11.5px/1.5 var(--font-mono); max-width: 100%; overflow-wrap: anywhere; }
+  .chip.skill { border-color: rgba(255,179,71,.4); color: var(--gold); background: rgba(255,179,71,.06); }
+  .hand { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+  .hand li { position: relative; padding-left: 16px; }
+  .hand li::before { content: "▸"; position: absolute; left: 0; color: var(--cyan); }
+  .hand li b { font-weight: 600; color: var(--text); }
+  .trig { display: flex; flex-direction: column; gap: 2px; }
+  .trig .kind { font: 600 11px/1.4 var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+  .trig .kind::after { content: " ▸ "; color: var(--faint); }
+  .meta { display: flex; justify-content: space-between; gap: 8px; align-items: center; color: var(--faint); font: 11px var(--font-mono); border-top: 1px dashed var(--line); padding-top: 8px; margin-top: auto; }
+  .meta .model { color: var(--muted); }
+  .meta button.say { border: 0; background: transparent; color: var(--cyan); cursor: pointer; font: 11px var(--font-mono); padding: 0; letter-spacing: .06em; }
+  .meta button.say:hover { text-decoration: underline; }
+
+  table.sched { width: 100%; border-collapse: collapse; font: 12.5px var(--font-mono); margin-top: 14px; background: var(--panel); border: 1px solid var(--line); }
+  table.sched th, table.sched td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.sched th { font: 600 10.5px/1.4 var(--font-head); letter-spacing: .2em; text-transform: uppercase; color: var(--cyan); background: rgba(25,211,255,.06); }
+  table.sched tr:last-child td { border-bottom: 0; }
+  table.sched td.t { white-space: nowrap; color: var(--cyan-2); }
+  .state { font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; }
+  .state.on { color: var(--live); text-shadow: 0 0 8px var(--live); } .state.off { color: var(--blocked); } .state.na { color: var(--testing); }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .planned { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .planned .chip { font-size: 12.5px; padding: 6px 10px; } .planned .chip b { color: var(--cyan-2); font-family: var(--font-head); letter-spacing: .1em; }
+  footer { margin-top: 44px; color: var(--faint); font: 12px var(--font-mono); border-top: 1px solid var(--line); padding-top: 14px; line-height: 1.6; }
+  .empty { display: none; color: var(--muted); font-size: 13px; padding: 14px 0; }
+  section.dept.allhidden .grid { display: none; } section.dept.allhidden .empty { display: block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition: none !important; }
+    .portal video { display: none; }
+  }
+  @media print { header.top { position: static; } .controls, #boot, .console, body::after { display: none !important; } .card { break-inside: avoid; } }
+
+  /* ---------- demo banner, toast ---------- */
+  .demo-banner { max-width: 1500px; margin: 10px auto 0; padding: 8px 16px; border: 1px solid rgba(255,179,71,.45); background: rgba(255,179,71,.08); color: var(--text); border-radius: 4px; font-size: 13px; width: calc(100% - 32px); }
+  .demo-banner b { color: var(--gold); font-family: var(--font-head); letter-spacing: .12em; text-transform: uppercase; font-size: 12px; }
+  .demo-banner[hidden], .toast[hidden], .modal[hidden], .conn-hosted[hidden], .conn-grid[hidden] { display: none !important; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 60; background: var(--panel); border: 1px solid var(--line-2); box-shadow: 0 0 24px rgba(25,211,255,.35); padding: 10px 16px; border-radius: 4px; font: 13px var(--font-mono); color: var(--text); backdrop-filter: blur(8px); }
+
+  /* ---------- connections modal ---------- */
+  .icon-btn.attention { color: var(--gold); border-color: var(--gold); box-shadow: 0 0 14px rgba(255,179,71,.45); animation: flicker 2.2s infinite; }
+  body.modal-open { overflow: hidden; }
+  .modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(2,5,10,.72); backdrop-filter: blur(6px); }
+  :root[data-theme="light"] .modal { background: rgba(230,236,242,.75); }
+  .modal-card { width: min(980px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 26px 20px 18px; animation: rise .35s ease both; }
+  .modal-card h3 { margin: 0 0 4px; font-size: 22px; color: var(--cyan-2); }
+  .modal-sub { margin: 0 0 16px; color: var(--muted); font: 12px var(--font-mono); letter-spacing: .04em; }
+  .modal-x { position: absolute; top: 12px; right: 12px; }
+  .conn-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .conn { border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--panel-2); display: flex; flex-direction: column; gap: 9px; }
+  .conn-head { display: flex; align-items: center; gap: 8px; font: 700 14px var(--font-head); letter-spacing: .12em; text-transform: uppercase; color: var(--text); }
+  .conn-state { font: 11.5px var(--font-mono); color: var(--muted); min-height: 1.2em; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--blocked); box-shadow: 0 0 8px var(--blocked); flex: none; }
+  .dot.on { background: var(--live); box-shadow: 0 0 10px var(--live); }
+  .conn label, .conn-hosted label { display: flex; flex-direction: column; gap: 4px; font: 600 10px/1.3 var(--font-head); letter-spacing: .2em; text-transform: uppercase; color: var(--faint); }
+  .conn input, .conn select, .conn-hosted input { font: 13px var(--font-mono); letter-spacing: normal; text-transform: none; color: var(--text); background: rgba(0,0,0,.28); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; width: 100%; }
+  :root[data-theme="light"] .conn input, :root[data-theme="light"] .conn select, :root[data-theme="light"] .conn-hosted input { background: #fff; }
+  .conn input:focus, .conn select:focus, .conn-hosted input:focus { outline: 1px solid var(--cyan); }
+  .conn-links { display: flex; justify-content: space-between; font: 11.5px var(--font-mono); margin-top: auto; }
+  .conn-links a[data-disconnect] { color: var(--faint); }
+  .conn-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .conn-log { margin-top: 12px; font: 12px/1.5 var(--font-mono); max-height: 160px; overflow: auto; }
+  .conn-log div { padding: 3px 0; border-bottom: 1px dashed var(--line); color: var(--muted); white-space: pre-wrap; }
+  .conn-log div.ok { color: var(--live); } .conn-log div.err { color: var(--blocked); }
+  .conn-hosted { border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--panel-2); display: grid; gap: 10px; }
+  .conn-hosted p { margin: 0; color: var(--muted); }
+  .modal-foot { margin: 12px 0 0; color: var(--faint); font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="boot" aria-live="polite">
+  <div class="inner">
+    <img src="assets/ring.jpg" alt="">
+    <div class="lines" id="boot-lines"></div>
+    <button id="boot-go">Initialise</button>
+    <span class="skip" id="boot-quiet">initialise without music</span>
+    <span class="skip" id="boot-skip">skip (no sound)</span>
+  </div>
+</div>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <img src="assets/emblem.jpg" alt="">
+      <h1>__ASSISTANT_DOTTED__<small>AI Workforce Command Centre · __ORG_NAME__</small></h1>
+    </div>
+    <div class="readout">
+      <span><i class="led"></i>SYSTEMS NOMINAL</span>
+      <span id="clock">--:--:--</span>
+      <span title="Last folder scan / page build">SYNC <b>__LAST_SCAN__</b></span>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Filter by status">
+        <button data-filter="all" aria-pressed="true">All <span class="n" id="n-all"></span></button>
+        <button data-filter="live" aria-pressed="false">Live <span class="n" id="n-live"></span></button>
+        <button data-filter="testing" aria-pressed="false">Testing <span class="n" id="n-testing"></span></button>
+        <button data-filter="blocked" aria-pressed="false">Blocked <span class="n" id="n-blocked"></span></button>
+      </div>
+      <input class="search" id="search" type="search" placeholder="search agents, tools, people" aria-label="Search">
+      <button class="icon-btn" id="music" aria-pressed="true" title="Intro music">♫</button>
+      <button class="icon-btn" id="sound" aria-pressed="false" title="UI sounds">♪</button>
+      <button class="icon-btn" id="connect" title="Connections — Claude &amp; ElevenLabs" aria-label="Connections">⚙</button>
+      <button class="icon-btn" id="theme" title="Toggle dark / light" aria-label="Toggle dark or light mode">◐</button>
+    </div>
+  </div>
+</header>
+
+<div class="demo-banner" id="demo-banner" hidden><b>Demo workforce.</b> This is a fictional company so you can see everything working. <span id="demo-cta">Run <code>npm run setup</code> — or <code>/jarvis-setup</code> in Claude Code — to load your own agents.</span></div>
+<main class="wrap">
+  <div class="hero">
+    <section class="panel portal-panel">
+      <span class="ptitle">Command structure</span>
+      <div class="bg"></div><div class="vig"></div>
+      <div class="owner">
+        <div class="k">__OWNER_LABEL__</div>
+        <div class="v">__OWNER_NAME__</div>
+        <div class="d">__OWNER_LINE__</div>
+      </div>
+      <div class="humans" id="humans" aria-label="Humans in the loop"></div>
+      <div class="portal" id="portal">
+        <div class="layer">
+          <video class="pvid" autoplay muted loop playsinline poster="assets/ring.jpg"><source src="assets/portal.mp4" type="video/mp4"></video>
+          <img class="ring" src="assets/ring.jpg" alt="">
+          <img class="ring2" src="assets/ring.jpg" alt="">
+          <div class="sweep"></div>
+          <img class="orb" src="assets/orb.jpg" alt="">
+        </div>
+        <svg class="spokes" id="spokes"></svg>
+        <div class="core-stats">
+          <div class="big" id="core-total">0</div>
+          <div class="lbl">agents</div>
+          <div class="row">
+            <span class="pip live"><i></i><b id="core-live">0</b></span>
+            <span class="pip testing"><i></i><b id="core-testing">0</b></span>
+            <span class="pip blocked"><i></i><b id="core-blocked">0</b></span>
+          </div>
+        </div>
+        <div id="radial"></div>
+      </div>
+      <div class="dgrid" id="dgrid"></div>
+    </section>
+
+    <section class="panel console">
+      <span class="ptitle">Voice interface</span>
+      <div class="head">
+        <img src="assets/orb.jpg" alt="">
+        <div>
+          <div class="name">__ASSISTANT__</div>
+          <div class="state" id="vstate"><b>●</b> standing by · <span id="vvoice"></span></div>
+        </div>
+      </div>
+      <div class="wave" id="wave" aria-hidden="true"></div>
+      <div class="caption" id="caption"><div class="who">__ASSISTANT__</div><div id="caption-text">Good day, __HONORIFIC__. Press <b>Brief me</b> for the briefing, <b>◉ Live</b> to talk, or type a question.</div></div>
+      <div class="vbtns">
+        <button class="vbtn" id="livebtn">◉ Live</button>
+        <button class="vbtn primary" id="brief">▶ Brief me</button>
+        <button class="vbtn" id="mic">🎙 Ask</button>
+        <button class="vbtn" data-intent="live">Live</button>
+        <button class="vbtn" data-intent="testing">Testing</button>
+        <button class="vbtn" data-intent="blocked">Blocked</button>
+        <button class="vbtn" data-intent="departments">Departments</button>
+        <button class="vbtn" id="stop">■</button>
+      </div>
+      <form class="ask" id="askform"><input id="askinput" placeholder="ask __ASSISTANT__ anything about the workforce: what is blocked?" autocomplete="off"><button class="vbtn" type="submit">Ask</button></form>
+      <form class="ask" id="codeform" hidden><input id="codeinput" type="password" placeholder="access code for live mode" autocomplete="off"><button class="vbtn" type="submit">Unlock</button></form>
+      <div class="foot" id="vfoot"></div>
+      <div id="convai"></div>
+    </section>
+  </div>
+
+  <div class="legend">
+    <span class="pip live"><i></i>LIVE — on its own schedule or trigger</span>
+    <span class="pip testing"><i></i>TESTING — built, shadow mode or manual</span>
+    <span class="pip blocked"><i></i>BLOCKED — waiting on a named item</span>
+    <span class="note">__TAGLINE__</span>
+  </div>
+
+  <div id="sections"></div>
+
+  <section class="dept" id="schedules">
+    <div class="dept-head"><h2><span class="idx">S</span>Every clock in the building</h2><span class="blurb">Where each scheduled task runs and whether it is on, as found in your agents’ folders.</span></div>
+    <div class="tablewrap"><table class="sched"><thead><tr><th>When</th><th>Task</th><th>Runner</th><th>State</th></tr></thead><tbody id="sched-body"></tbody></table></div>
+  </section>
+
+  <section class="dept" id="planned">
+    <div class="dept-head"><h2><span class="idx">P</span>On the org chart, not yet hired</h2><span class="blurb">Agents you plan to build — list them under <code>planned</code> in <code>data/roster.json</code>.</span></div>
+    <div class="planned" id="planned-chips"></div>
+  </section>
+
+  <footer>
+    <div>__FOOTER__</div>
+    <div style="margin-top:8px">Brain: Claude by Anthropic · Voice: ElevenLabs · Artwork: Google Gemini · <a href="https://github.com/memefactorydev-design/jarvis-command-centre" target="_blank" rel="noopener">Open source</a>. A fan-styled, unofficial project — not affiliated with Marvel or Disney.</div>
+  </footer>
+</main>
+
+<div class="modal" id="connmodal" hidden role="dialog" aria-modal="true" aria-labelledby="conn-title">
+  <form class="modal-card panel" id="connform" autocomplete="off">
+    <span class="ptitle">Connections</span>
+    <button type="button" class="icon-btn modal-x" id="conn-close" aria-label="Close">✕</button>
+    <h3 id="conn-title">Bring __ASSISTANT__ online</h3>
+    <p class="modal-sub" id="conn-stats">Checking…</p>
+
+    <div class="conn-hosted" id="conn-hosted" hidden>
+      <p><b>This command centre is hosted.</b> Its keys live in encrypted environment variables on the server and can't be entered from a browser.
+      To change them, run it on your own computer (<code>npm start</code> → ⚙ Connections) and publish again with <code>npm run deploy</code>.</p>
+      <label>Access code for live mode <input id="conn-code" type="password" placeholder="paste the access code"></label>
+      <button type="button" class="vbtn primary" id="conn-code-save">Unlock live mode</button>
+    </div>
+    <div class="conn-hosted" id="conn-static" hidden>
+      <p><b>Opened as a plain file.</b> The dashboard works, but live conversation and connections need the small local server.
+      In the project folder run <code>npm install</code> then <code>npm run setup</code> (or just <code>npm start</code>).</p>
+    </div>
+
+    <div class="conn-grid" id="conn-local">
+      <section class="conn">
+        <div class="conn-head"><span class="dot" id="dot-llm"></span><b>Brain · Claude</b></div>
+        <div class="conn-state" id="st-llm">not connected</div>
+        <label>Anthropic API key <input id="in-llm" type="password" placeholder="sk-ant-…" spellcheck="false"></label>
+        <label>Model <select id="in-model"></select></label>
+        <div class="conn-links"><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get a key ↗</a><a href="#" data-disconnect="anthropic">disconnect</a></div>
+      </section>
+      <section class="conn">
+        <div class="conn-head"><span class="dot" id="dot-voice"></span><b>Voice · ElevenLabs</b></div>
+        <div class="conn-state" id="st-voice">not connected</div>
+        <label>ElevenLabs API key <input id="in-voice" type="password" placeholder="sk_…" spellcheck="false"></label>
+        <label>Voice <select id="in-voiceid"></select></label>
+        <div class="conn-links"><a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener">Get a key ↗</a><a href="#" data-disconnect="elevenlabs">disconnect</a></div>
+      </section>
+      <section class="conn">
+        <div class="conn-head"><span class="dot on"></span><b>Identity &amp; agents</b></div>
+        <label>Assistant name <input id="in-name" maxlength="40"></label>
+        <label>Address me as <input id="in-hon" maxlength="40" placeholder="sir, ma'am, boss, your name"></label>
+        <label>Your name <input id="in-owner" maxlength="80"></label>
+        <label>Organisation <input id="in-org" maxlength="60"></label>
+        <label>Agents folder <input id="in-dir" placeholder="~/Projects/Agents" spellcheck="false"></label>
+      </section>
+    </div>
+
+    <div class="conn-actions" id="conn-actions">
+      <button type="submit" class="vbtn primary" id="conn-save">Save &amp; test</button>
+      <button type="button" class="vbtn" id="conn-test">Test connections</button>
+      <button type="button" class="vbtn" id="conn-rescan">⟳ Rescan agents</button>
+      <button type="button" class="vbtn" id="conn-voicegen">♪ Record voice clips</button>
+    </div>
+    <div class="conn-log" id="conn-log" aria-live="polite"></div>
+    <p class="modal-foot" id="conn-foot">Keys are saved to <code>.env</code> on this computer (permissions 600) and only ever sent to Anthropic and ElevenLabs. They are never shown in full again — not even to this page.</p>
+  </form>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script id="roster-data" type="application/json">__ROSTER_JSON__</script>
+<script id="voice-data" type="application/json">__VOICE_JSON__</script>
+<script>
+const ASSET_V = '__ASSET_V__';   /* build stamp appended to every asset URL so a redeploy always busts the cache */
+const AI_NAME = '__ASSISTANT__', HON = '__HONORIFIC__', PAGE_BUILT = '__BUILD_STAMP__';
+const BOOT_OFF = new URLSearchParams(location.search).get('boot') === '0';
+const ROSTER = JSON.parse(document.getElementById('roster-data').textContent);
+const VOICE = JSON.parse(document.getElementById('voice-data').textContent);
+const S = { live: 'Live', testing: 'Testing', blocked: 'Blocked' };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- sound ---------- */
+const SFX = { boot: 'assets/sfx/boot.mp3', blip: 'assets/sfx/blip.mp3', tick: 'assets/sfx/tick.mp3', sweep: 'assets/sfx/sweep.mp3', intro: 'assets/sfx/intro.mp3' };
+
+const INTRO_VARIANT = (new URLSearchParams(location.search).get('intro') || '').toLowerCase();
+if (/^[bc]$/.test(INTRO_VARIANT)) SFX.intro = SFX.intro.replace('intro.mp3', 'intro_' + INTRO_VARIANT + '.mp3');
+
+/* intro music: an original sting, plays once per session when Initialise is pressed, ~4.5 s with a fade; ♫ switches it off */
+let introOn = true; try { introOn = localStorage.getItem('roster-intro') !== 'off'; } catch (e) {}
+let introAudio = null;
+const musicBtn = document.getElementById('music');
+function paintMusic() { musicBtn.setAttribute('aria-pressed', introOn ? 'true' : 'false'); musicBtn.title = introOn ? 'Intro music on (plays once per session) — click to switch off' : 'Intro music off — click to switch on'; }
+function stopIntro() { if (introAudio) { try { introAudio.pause(); } catch (e) {} introAudio = null; } }
+musicBtn.addEventListener('click', () => { introOn = !introOn; try { localStorage.setItem('roster-intro', introOn ? 'on' : 'off'); } catch (e) {} paintMusic(); stopIntro(); });
+paintMusic();
+function playIntro() {
+  /* plays the whole intro (about ten seconds), fading only over the last 1.2 s, then resolves */
+  return new Promise(res => {
+    try {
+      introAudio = new Audio(SFX.intro); introAudio.volume = 0.9;
+      const FADE = 1200;
+      const fade = setInterval(() => {
+        if (!introAudio) { clearInterval(fade); return res(); }
+        const d = introAudio.duration, t = introAudio.currentTime;
+        if (isFinite(d) && d > 0 && (d - t) * 1000 < FADE) introAudio.volume = Math.max(0, 0.9 * ((d - t) * 1000) / FADE);
+      }, 50);
+      introAudio.addEventListener('ended', () => { clearInterval(fade); introAudio = null; res(); });
+      introAudio.addEventListener('error', () => { clearInterval(fade); introAudio = null; res(); });
+      introAudio.play().catch(() => { clearInterval(fade); introAudio = null; res(); });
+    } catch (e) { res(); }
+  });
+}
+let soundOn = false; try { soundOn = localStorage.getItem('roster-sound') === 'on'; } catch (e) {}
+let lastTick = 0;
+function sfx(name, vol = .5) {
+  if (!soundOn) return;
+  if (name === 'tick') { const now = Date.now(); if (now - lastTick < 90) return; lastTick = now; }
+  try { const a = new Audio(SFX[name]); a.volume = vol; a.play().catch(() => {}); } catch (e) {}
+}
+const soundBtn = document.getElementById('sound');
+function paintSound() { soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); soundBtn.title = soundOn ? 'UI sounds on' : 'UI sounds off'; }
+soundBtn.addEventListener('click', () => { soundOn = !soundOn; try { localStorage.setItem('roster-sound', soundOn ? 'on' : 'off'); } catch (e) {} paintSound(); sfx('blip'); });
+paintSound();
+
+/* ---------- theme ---------- */
+const root = document.documentElement;
+try { const t = localStorage.getItem('roster-theme'); if (t === 'light' || t === 'dark') root.dataset.theme = t; } catch (e) {}
+if (!root.dataset.theme) root.dataset.theme = 'dark';
+document.getElementById('theme').addEventListener('click', () => {
+  root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('roster-theme', root.dataset.theme); } catch (e) {}
+  sfx('blip');
+});
+
+/* ---------- clock ---------- */
+function tickClock() {
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString([], { hour12: false }) + ' ' + ((new Intl.DateTimeFormat([], { timeZoneName: 'short' }).formatToParts(d).find(p => p.type === 'timeZoneName') || {}).value || '');
+}
+tickClock(); setInterval(tickClock, 1000);
+
+/* ---------- render roster ---------- */
+function cardHTML(a, dept) {
+  const trig = a.trigger.map(([k, v]) => `<div><span class="kind">${esc(k)}</span>${esc(v)}</div>`).join('');
+  const chips = a.connects.map(c => `<span class="chip">${esc(c)}</span>`).join('');
+  const hand = a.handoff.map(h => `<li>${h}</li>`).join('');
+  const skills = a.skills ? `<dt>Skills</dt><dd><div class="chips">${a.skills.map(s => `<span class="chip skill">${esc(s)}</span>`).join('')}</div></dd>` : '';
+  let waiting = '';
+  if (a.waiting && a.waiting.length) {
+    const label = a.waitingLabel || 'Waiting on';
+    waiting = `<div class="waiting ${a.status !== 'blocked' ? 'soft' : ''}"><b>${esc(label)}</b><ul>${a.waiting.map(w => `<li>${esc(w).replace(/`([^`]+)`/g, '<code>$1</code>')}</li>`).join('')}</ul></div>`;
+  }
+  const search = [a.tag, a.name, a.job, dept.name, a.model, ...a.connects, ...(a.skills || []), ...(a.waiting || []), ...a.handoff, a.statusNote || ''].join(' ').toLowerCase();
+  const clipKey = 'agent-' + slug(a.name);
+  const say = `<button class="say" data-clip="${clipKey}" title="Hear this agent's status">▶ status</button>`;
+  return `
+  <article class="card" id="card-${slug(a.name)}" data-status="${a.status}" data-search="${esc(search)}" data-name="${esc(a.name)}">
+    <div class="card-head">
+      <div class="title">
+        <div class="tag">${esc(a.tag)}${a.needs_review ? '<span class="new">◆ NEW · needs review</span>' : ''}</div>
+        <div class="name">${esc(a.name)}</div>
+        <div class="job">${esc(a.job)}</div>
+      </div>
+      <span class="badge ${a.status}"><i></i>${S[a.status]}</span>
+    </div>
+    <dl class="facts">
+      <dt>Dept</dt><dd>${esc(dept.name)}</dd>
+      <dt>Trigger</dt><dd><div class="trig">${trig}</div></dd>
+      <dt>Connects</dt><dd><div class="chips">${chips}</div></dd>
+      <dt>Status</dt><dd><span class="status-note">${esc(a.statusNote || '')}</span>${waiting}</dd>
+      <dt>Hands off</dt><dd><ul class="hand">${hand}</ul></dd>
+      ${skills}
+    </dl>
+    <div class="meta"><span class="model">${esc(a.model)}</span>${say}<span class="mono" title="Source folder">${esc(a.path)}</span></div>
+  </article>`;
+}
+
+function render() {
+  const counts = { all: 0, live: 0, testing: 0, blocked: 0 };
+  const sections = document.getElementById('sections');
+  sections.innerHTML = ROSTER.depts.map((d, i) => {
+    const c = { live: 0, testing: 0, blocked: 0 };
+    d.agents.forEach(a => { c[a.status]++; counts[a.status]++; counts.all++; });
+    d._c = c;
+    return `
+    <section class="dept" id="${d.id}">
+      <div class="dept-head">
+        <h2><span class="idx">${String(i + 1).padStart(2, '0')}</span>${esc(d.name)}</h2>
+        <span class="blurb">${esc(d.blurb)}</span>
+        <span class="who"><b>${d.agents.length} agent${d.agents.length === 1 ? '' : 's'}</b> · ${esc(d.who || '')}</span>
+      </div>
+      ${d.note ? `<p class="dept-note">${d.note}</p>` : ''}
+      <div class="grid ${d.compact ? 'compact' : ''}">${d.agents.map(a => cardHTML(a, d)).join('')}</div>
+      <p class="empty">No agents in this department match the current filter.</p>
+    </section>`;
+  }).join('');
+
+  const nodeHTML = (d, cls) => `
+    <a class="dnode ${cls}" href="#${d.id}" data-dept="${d.id}">
+      <div class="v">${esc(d.name)}</div>
+      <div class="d">${d.agents.length} agent${d.agents.length === 1 ? '' : 's'}</div>
+      <div class="mini">
+        ${d._c.live ? `<span class="pip live"><i></i>${d._c.live}</span>` : ''}
+        ${d._c.testing ? `<span class="pip testing"><i></i>${d._c.testing}</span>` : ''}
+        ${d._c.blocked ? `<span class="pip blocked"><i></i>${d._c.blocked}</span>` : ''}
+      </div>
+    </a>`;
+  document.getElementById('humans').innerHTML = (ROSTER.team || []).map(t =>
+    `<span class="human"><span class="av">${esc(t.av || t.name[0])}</span>${esc(t.name)} <span class="r">· ${esc(t.role)}</span></span>`).join('');
+  document.getElementById('radial').innerHTML = ROSTER.depts.map(d => nodeHTML(d, 'radial')).join('');
+  document.getElementById('dgrid').innerHTML = ROSTER.depts.map(d => nodeHTML(d, '')).join('');
+
+  for (const k of Object.keys(counts)) document.getElementById('n-' + k).textContent = counts[k];
+  countUp('core-total', counts.all); countUp('core-live', counts.live); countUp('core-testing', counts.testing); countUp('core-blocked', counts.blocked);
+
+  document.getElementById('sched-body').innerHTML = (ROSTER.sched || []).map(([t, task, runner, st]) => {
+    const label = st === 'on' ? 'On' : st === 'off' ? 'Off' : st === 'unknown' ? 'Check app' : 'Not installed';
+    return `<tr><td class="t">${esc(t)}</td><td>${esc(task)}</td><td>${esc(runner)}</td><td><span class="state ${st}">${label}</span></td></tr>`;
+  }).join('');
+  document.getElementById('planned-chips').innerHTML = (ROSTER.planned || []).map(([n, t]) => `<span class="chip"><b>${esc(n)}</b> ${esc(t)}</span>`).join('');
+  document.getElementById('planned').hidden = !(ROSTER.planned || []).length;
+  document.getElementById('schedules').hidden = !(ROSTER.sched || []).length;
+  document.getElementById('demo-banner').hidden = !ROSTER.demo;
+  layoutRadial();
+  document.querySelectorAll('.card').forEach(c => c.addEventListener('mouseenter', () => sfx('tick', .25)));
+  document.querySelectorAll('.dnode, .seg button, .vbtn').forEach(b => b.addEventListener('click', () => sfx('blip', .4)));
+  document.querySelectorAll('button.say').forEach(b => b.addEventListener('click', e => { e.preventDefault(); playClip(b.dataset.clip); }));
+}
+
+function countUp(id, to) {
+  const el = document.getElementById(id); const start = performance.now(); const dur = reduced ? 1 : 1400;
+  (function step(now) { const p = Math.min(1, (now - start) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(start);
+}
+
+/* radial department nodes around the portal, spokes to the core */
+function layoutRadial() {
+  const portal = document.getElementById('portal'); const svg = document.getElementById('spokes');
+  const nodes = [...portal.querySelectorAll('.dnode.radial')];
+  const wide = matchMedia('(min-width: 1100px)').matches;
+  portal.classList.toggle('flat', !wide);
+  const W = portal.clientWidth;
+  if (!wide || W < 440) { portal.classList.add('flat'); svg.innerHTML = ''; return; }
+  const cx = W / 2, cy = W / 2, R = W * 0.47;
+  svg.setAttribute('viewBox', `0 0 ${W} ${W}`);
+  let lines = '';
+  nodes.forEach((n, i) => {
+    const ang = -Math.PI / 2 + (i / nodes.length) * Math.PI * 2;
+    const x = cx + R * Math.cos(ang), y = cy + R * Math.sin(ang);
+    n.style.left = x + 'px'; n.style.top = y + 'px'; n.style.animationDelay = (i * 80) + 'ms';
+    const ix = cx + (W * 0.16) * Math.cos(ang), iy = cy + (W * 0.16) * Math.sin(ang);
+    lines += `<line x1="${ix}" y1="${iy}" x2="${x}" y2="${y}"/><circle cx="${ix}" cy="${iy}" r="2.5"/>`;
+  });
+  svg.innerHTML = lines;
+}
+addEventListener('resize', layoutRadial);
+
+/* ---------- filter + search ---------- */
+let filter = 'all', query = '';
+function applyFilter() {
+  document.querySelectorAll('section.dept[id]').forEach(sec => {
+    const cards = sec.querySelectorAll('.card'); if (!cards.length) return;
+    let shown = 0;
+    cards.forEach(c => { const ok = (filter === 'all' || c.dataset.status === filter) && (!query || c.dataset.search.includes(query)); c.classList.toggle('hidden', !ok); if (ok) shown++; });
+    sec.classList.toggle('allhidden', shown === 0);
+  });
+}
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  filter = b.dataset.filter; document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); applyFilter();
+}));
+document.getElementById('search').addEventListener('input', e => { query = e.target.value.trim().toLowerCase(); applyFilter(); });
+
+/* ---------- voice interface ---------- */
+const clips = VOICE.clips || {};
+const wave = document.getElementById('wave');
+for (let i = 0; i < 48; i++) wave.appendChild(document.createElement('i'));
+const bars = [...wave.children];
+let player = null, waveTimer = null, typeTimer = null;
+document.getElementById('vvoice').textContent = VOICE.voice_name ? VOICE.voice_name.replace(/\s*\(.*\)/, '') + ' · ' + Object.keys(clips).length + ' clips' : 'no voice built yet';
+
+/* live-mode state, declared first so stopAll() can always reach it */
+let liveAbort = null, speaking = false, speechToken = 0, liveOn = false, liveReady = false, rec = null;
+const speechQ = [];
+const convo = [];
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const mic = document.getElementById('mic');
+const liveBtn = document.getElementById('livebtn');
+const codeForm = document.getElementById('codeform');
+let accessCode = ''; try { accessCode = localStorage.getItem('jarvis-code') || ''; } catch (e) {}
+(function takeCodeFromHash() {
+  const m = location.hash.match(/(?:^#|&)code=([^&]+)/);
+  if (!m) return;
+  accessCode = decodeURIComponent(m[1]);
+  try { localStorage.setItem('jarvis-code', accessCode); } catch (e) {}
+  history.replaceState(null, '', location.pathname + location.search);
+})();
+
+/* real waveform: speech is routed through an analyser once the page has had a user gesture */
+let actx = null, analyser = null, freq = null;
+function ensureAudioCtx() {
+  try {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+      actx = new C(); analyser = actx.createAnalyser(); analyser.fftSize = 128; analyser.smoothingTimeConstant = .55;
+      analyser.connect(actx.destination); freq = new Uint8Array(analyser.frequencyBinCount);
+    }
+    if (actx.state === 'suspended') actx.resume();
+  } catch (e) { actx = null; }
+}
+addEventListener('pointerdown', ensureAudioCtx, { passive: true });
+addEventListener('keydown', ensureAudioCtx);
+function route(audio) {
+  try { if (actx && actx.state === 'running') { actx.createMediaElementSource(audio).connect(analyser); return true; } } catch (e) {}
+  return false;
+}
+
+function setState(txt, live) { document.getElementById('vstate').innerHTML = `<b style="color:${live ? 'var(--live)' : 'var(--muted)'}">●</b> ${esc(txt)}`; }
+function animateWave(on) {
+  clearInterval(waveTimer);
+  if (!on) { bars.forEach(b => b.style.height = '6px'); return; }
+  waveTimer = setInterval(() => {
+    if (analyser && actx && actx.state === 'running' && player && !player.paused) {
+      analyser.getByteFrequencyData(freq);
+      const n = bars.length, m = Math.floor(freq.length * .7);
+      bars.forEach((b, i) => { const k = Math.abs(i - n / 2) / (n / 2); const v = freq[Math.floor(k * m)] / 255; b.style.height = (5 + v * 54) + 'px'; });
+      return;
+    }
+    const t = Date.now() / 180; bars.forEach((b, i) => { const h = 8 + Math.abs(Math.sin(t + i * .35)) * 34 * (0.5 + Math.random() * .6); b.style.height = h + 'px'; });
+  }, 45);
+}
+function caption(text, who = AI_NAME, typed = true, ms = 0) {
+  clearInterval(typeTimer);
+  const box = document.getElementById('caption'); const el = document.getElementById('caption-text');
+  box.querySelector('.who').textContent = who; box.querySelector('.who').classList.toggle('you', who !== AI_NAME);
+  if (!typed || reduced) { el.textContent = text; el.classList.remove('cursor'); return; }
+  const per = Math.max(14, Math.min(60, (ms || text.length * 55) / Math.max(1, text.length)));
+  let i = 0; el.textContent = ''; el.classList.add('cursor');
+  typeTimer = setInterval(() => { i += 2; el.textContent = text.slice(0, i); if (i >= text.length) { clearInterval(typeTimer); el.classList.remove('cursor'); } }, per);
+}
+function stopListening() {
+  if (rec) { const r = rec; rec = null; try { r.abort(); } catch (e) {} }
+  mic.classList.remove('listening'); mic.textContent = '🎙 Ask';
+}
+function stopAll() {
+  speechToken++;
+  if (player) { player.pause(); player = null; }
+  if (liveAbort) { liveAbort.abort(); liveAbort = null; }
+  speechQ.length = 0; speaking = false;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  stopListening();
+  animateWave(false); clearInterval(typeTimer); document.getElementById('caption-text').classList.remove('cursor');
+  setState(liveOn ? 'live link open' : 'standing by', true);
+}
+function playClip(key) {
+  const c = clips[key];
+  if (!c) { const t = localText(key); if (!t) return; stopAll(); setState('speaking', true); animateWave(true); caption(t, AI_NAME, true, t.length * 62); browserSay(t).then(() => { animateWave(false); setState(liveOn ? 'live link open' : 'standing by', true); }); return; }
+  stopAll();
+  player = new Audio('voice/' + c.file + ASSET_V); route(player);
+  setState('speaking', true); animateWave(true);
+  player.addEventListener('loadedmetadata', () => caption(c.text, AI_NAME, true, (player.duration || 8) * 1000 * .92));
+  player.addEventListener('ended', () => { animateWave(false); setState(liveOn ? 'live link open' : 'standing by', true); });
+  player.addEventListener('error', () => { animateWave(false); setState('audio file missing', false); caption(c.text, AI_NAME, false); });
+  player.play().catch(() => { caption(c.text, AI_NAME, false); setState('tap a button to allow audio', false); animateWave(false); });
+}
+function flashCard(name) {
+  const el = document.getElementById('card-' + slug(name)); if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 3200);
+}
+const INTENTS = [
+  [/\b(brief|briefing|debrief|rundown|run me through)\b/, 'briefing'],
+  [/\b(blocked|blockers|stuck|waiting)\b/, 'blocked'],
+  [/\b(live|running|online|operational)\b/, 'live'],
+  [/\b(testing|shadow|trial)\b/, 'testing'],
+  [/\b(department|departments|teams|groups)\b/, 'departments'],
+  [/\b(help|what can you|commands|options)\b/, 'help'],
+  [/\b(hello|hi|hey|good (morning|afternoon|evening)|jarvis)\b/, 'greeting'],
+  [/\b(bye|goodbye|thanks|thank you|that will be all|dismissed)\b/, 'bye'],
+  [/\b(summary|status|report|how many|overview|headline|numbers)\b/, 'summary'],
+];
+const ALIASES = ROSTER.aliases || {};
+function matchAgent(q) {
+  for (const [k, v] of Object.entries(ALIASES)) if (q.includes(k)) return v;
+  const fm = q.match(/\bf\s?(zero|\d)\b/); if (fm) { const n = fm[1] === 'zero' ? '0' : fm[1]; const a = allAgents().find(a => a.name.startsWith('F' + n + ' ')); if (a) return a.name; }
+  let best = null, bestScore = 0;
+  for (const a of allAgents()) {
+    const toks = a.name.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(t => t.length > 2 && !['the', 'and', 'agent', 'mailbox'].includes(t));
+    const score = toks.filter(t => q.includes(t)).length;
+    if (score > bestScore) { bestScore = score; best = a.name; }
+  }
+  return bestScore >= 1 ? best : null;
+}
+function allAgents() { return ROSTER.depts.flatMap(d => d.agents); }
+function handle(raw) {
+  raw = (raw || '').trim(); const q = raw.toLowerCase(); if (!q) return;
+  const agent = matchAgent(q);
+  if (liveReady && (MODE === 'local' || accessCode)) { if (agent) flashCard(agent); liveAsk(raw); return; }
+  caption(raw, 'YOU', false);
+  const intent = INTENTS.find(([re]) => re.test(q));
+  let key = null;
+  if (agent && !(intent && intent[1] === 'briefing')) { key = 'agent-' + slug(agent); flashCard(agent); }
+  else if (intent) key = intent[1];
+  else key = 'unknown';
+  setTimeout(() => playClip(key), 350);
+}
+
+/* ---------- live assistant: Claude via /api/jarvis, spoken by ElevenLabs via /api/tts (browser voice as fallback) ---------- */
+let MODE = location.protocol === 'file:' ? 'static' : 'unknown';
+let STATUS = { model: '', voice: false, llm: false };
+const MODEL_LABELS = { 'claude-sonnet-5-5': 'Claude Sonnet 5.5', 'claude-opus-5-5': 'Claude Opus 5.5', 'claude-haiku-4-5': 'Claude Haiku 4.5', 'claude-opus-5': 'Claude Opus 5', 'claude-fable-5-1': 'Claude Fable 5.1' };
+const modelLabel = m => MODEL_LABELS[m] || m || 'Claude';
+function paintLive() {
+  liveBtn.classList.toggle('on', liveOn);
+  liveBtn.textContent = liveOn ? '◉ Live · on' : '◉ Live';
+  const needCode = MODE === 'hosted' && !accessCode;
+  liveBtn.title = !liveReady ? (MODE === 'local' ? 'Connect Claude in ⚙ Connections to talk live' : 'Live link offline')
+    : needCode ? 'Enter the access code to enable live mode' : `Talk to ${AI_NAME} live (${modelLabel(STATUS.model)})`;
+  const voiceTxt = STATUS.voice ? 'ElevenLabs' : 'browser voice';
+  const foot = document.getElementById('vfoot');
+  if (MODE === 'static') foot.innerHTML = 'opened as a file — run <code>npm start</code> for live conversation';
+  else if (liveReady) foot.innerHTML = `brain: ${esc(modelLabel(STATUS.model))} · voice: ${voiceTxt}${needCode ? ' · <b>access code needed</b>' : ''}`;
+  else if (MODE === 'local') foot.innerHTML = `brain: <a href="#" id="vfoot-connect">connect Claude</a> · voice: ${STATUS.voice ? 'ElevenLabs' : '<a href="#" id="vfoot-voice">connect ElevenLabs</a>'}`;
+  else foot.innerHTML = `live link offline · ${Object.keys(clips).length} recorded answers`;
+  const a = document.getElementById('vfoot-connect'); if (a) a.onclick = e => { e.preventDefault(); openConnections('in-llm'); };
+  const b = document.getElementById('vfoot-voice'); if (b) b.onclick = e => { e.preventDefault(); openConnections('in-voice'); };
+  document.getElementById('connect').classList.toggle('attention', MODE === 'local' && !STATUS.llm);
+}
+async function refreshStatus() {
+  if (MODE === 'static') { paintLive(); return; }
+  try {
+    const r = await fetch('/api/jarvis', { cache: 'no-store' });
+    const j = r.ok ? await r.json() : null;
+    if (!j) throw new Error('no status');
+    MODE = j.mode || 'hosted'; STATUS = j; liveReady = !!j.live;
+  } catch (e) { MODE = 'static'; liveReady = false; }
+  paintLive();
+  if (ROSTER.demo && MODE === 'local') document.getElementById('demo-cta').innerHTML = 'Point me at your own agents: <a href="#" id="demo-load">load my agents folder</a> (or run <code>/jarvis-setup</code> in Claude Code).';
+  const dl = document.getElementById('demo-load'); if (dl) dl.onclick = e => { e.preventDefault(); openConnections('in-dir'); };
+  if (new URLSearchParams(location.search).get('connect') === '1' && !refreshStatus.opened) { refreshStatus.opened = true; openConnections(MODE === 'local' && !STATUS.llm ? 'in-llm' : undefined); }
+}
+function localText(key) {
+  const all = ROSTER.depts.flatMap(d => d.agents.map(a => ({ d, a })));
+  const by = s => all.filter(x => x.a.status === s);
+  const names = (xs, n = 6) => xs.length ? xs.slice(0, n).map(x => x.a.name).join(', ') + (xs.length > n ? `, and ${xs.length - n} more` : '') : 'none';
+  const L = by('live'), T = by('testing'), B = by('blocked');
+  const m = {
+    briefing: `Good day, ${HON}. ${all.length} agents are on the roster: ${L.length} live, ${T.length} in testing and ${B.length} blocked. Live: ${names(L)}. Blocked: ${names(B)}.`,
+    greeting: `Welcome back, ${HON}. ${AI_NAME} online, and the workforce roster is loaded. Press Live and simply talk to me, or ask about any agent by name.`,
+    summary: `${all.length} agents: ${L.length} live, ${T.length} in testing, ${B.length} blocked.`,
+    live: `${L.length} live: ${names(L, 8)}.`,
+    testing: `${T.length} in testing: ${names(T, 8)}.`,
+    blocked: B.length ? `${B.length} blocked: ` + B.slice(0, 5).map(x => x.a.name + (x.a.waiting && x.a.waiting[0] ? ', waiting on ' + x.a.waiting[0] : '')).join('; ') + '.' : 'Nothing is blocked.',
+    departments: `${ROSTER.depts.length} departments: ` + ROSTER.depts.map(d => `${d.name} with ${d.agents.length}`).join(', ') + '.',
+    help: 'Ask: give me the briefing; what is live; what is blocked; what is in testing; or name an agent.',
+    unknown: `I did not catch an agent or a topic in that, ${HON}. Try: what is blocked, or name an agent.`,
+    bye: `Very good, ${HON}. I shall keep watch.`,
+  };
+  if (m[key]) return m[key];
+  if (key.startsWith('agent-')) {
+    const x = all.find(x => 'agent-' + slug(x.a.name) === key);
+    if (x) return `${x.a.name}, in ${x.d.name}, is ${x.a.status === 'testing' ? 'in testing' : x.a.status}. ${(x.a.statusNote || '').split(/(?<=[.!?])\s/)[0]}${x.a.waiting && x.a.waiting[0] ? ' Waiting on: ' + x.a.waiting[0] + '.' : ''}`;
+  }
+  return '';
+}
+paintLive();
+
+function cutSentence(buf) { const re = /[.!?…](?=\s)/g; let m; while ((m = re.exec(buf))) { if (m.index + 1 >= 24) return m.index + 1; } return -1; }
+function queueSpeech(text, token) {
+  const p = fetch('/api/tts', { method: 'POST', headers: { 'content-type': 'application/json', 'x-jarvis-code': accessCode }, body: JSON.stringify({ text }) })
+    .then(r => r.ok ? r.blob() : null).catch(() => null);
+  speechQ.push({ text, p, token });
+  if (!speaking) drainSpeech();
+}
+function playBlob(blob) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(blob); let fin = false;
+    const done = () => { if (fin) return; fin = true; URL.revokeObjectURL(url); resolve(); };
+    player = new Audio(url); route(player);
+    player.addEventListener('ended', done); player.addEventListener('pause', done); player.addEventListener('error', done);
+    player.play().catch(done);
+  });
+}
+function browserSay(text) {
+  return new Promise(resolve => {
+    try {
+      const u = new SpeechSynthesisUtterance(text); u.lang = 'en-GB';
+      const vs = speechSynthesis.getVoices(); const v = vs.find(v => /en-GB/i.test(v.lang) && /daniel|arthur|george|male/i.test(v.name)) || vs.find(v => /en-GB/i.test(v.lang));
+      if (v) u.voice = v; u.onend = u.onerror = () => resolve(); speechSynthesis.speak(u);
+    } catch (e) { resolve(); }
+  });
+}
+function afterReply() { animateWave(false); setState(liveOn ? 'live link open' : 'standing by', true); if (liveOn) listen(); }
+async function drainSpeech() {
+  speaking = true; setState('speaking', true); animateWave(true);
+  while (speechQ.length) {
+    const item = speechQ.shift();
+    if (item.token !== speechToken) continue;
+    const blob = await item.p;
+    if (item.token !== speechToken) break;
+    if (blob && blob.size) await playBlob(blob); else await browserSay(item.text);
+    if (item.token !== speechToken) break;
+  }
+  speaking = false;
+  if (!liveAbort) afterReply();
+}
+async function liveAsk(text) {
+  stopAll();
+  const token = speechToken;
+  convo.push({ role: 'user', content: text }); while (convo.length > 16) convo.shift();
+  caption(text, 'YOU', false); setState('thinking', true); animateWave(true);
+  const ac = new AbortController(); liveAbort = ac;
+  let res;
+  try {
+    res = await fetch('/api/jarvis', { method: 'POST', signal: ac.signal,
+      headers: { 'content-type': 'application/json', 'x-jarvis-code': accessCode }, body: JSON.stringify({ messages: convo }) });
+  } catch (e) {
+    if (ac.signal.aborted) return;
+    convo.pop(); liveAbort = null; animateWave(false); setState('link error', false);
+    caption('I can’t reach the live link, ' + HON + '. Check the connection and try again.', AI_NAME, false); return;
+  }
+  if (!res.ok || !res.body) {
+    convo.pop(); liveAbort = null; animateWave(false);
+    if (res.status === 503 && MODE === 'local') { setState('brain not connected', false); caption('Connect Claude in ⚙ Connections and I can answer anything about the roster, ' + HON + '.', AI_NAME, false); openConnections('in-llm'); }
+    else if (res.status === 401) {
+      accessCode = ''; try { localStorage.removeItem('jarvis-code'); } catch (e) {}
+      liveOn = false; paintLive(); codeForm.hidden = false; setState('access code needed', false);
+      caption('That access code was not recognised, ' + HON + '.', AI_NAME, false);
+    } else if (res.status === 429) { setState('rate limited', false); caption('Easy, ' + HON + '. The live link is rate limited for a few minutes.', AI_NAME, false); }
+    else { setState('live link error', false); caption('The live link returned an error, ' + HON + '. The recorded answers still work.', AI_NAME, false); }
+    return;
+  }
+  const box = document.getElementById('caption'); box.querySelector('.who').textContent = AI_NAME; box.querySelector('.who').classList.remove('you');
+  const el = document.getElementById('caption-text'); el.textContent = ''; el.classList.add('cursor');
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let full = '', buf = '';
+  try {
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break;
+      const chunk = dec.decode(value, { stream: true }); full += chunk; buf += chunk; el.textContent = full;
+      let cut; while ((cut = cutSentence(buf)) > 0) { queueSpeech(buf.slice(0, cut).trim(), token); buf = buf.slice(cut).replace(/^\s+/, ''); }
+    }
+  } catch (e) { if (ac.signal.aborted) return; }
+  if (token !== speechToken) return;
+  if (buf.trim()) queueSpeech(buf.trim(), token);
+  el.classList.remove('cursor'); liveAbort = null;
+  convo.push({ role: 'assistant', content: full.trim() || '…' });
+  if (!speaking && !speechQ.length) afterReply();
+}
+
+/* microphone via the browser's speech recognition (Chrome, Edge, Safari); in live mode it re-opens after each reply */
+function listen() {
+  if (!SR) { document.getElementById('askinput').focus(); return; }
+  if (rec) return;
+  const r = new SR(); rec = r; r.lang = 'en-GB'; r.interimResults = true; r.maxAlternatives = 1;
+  let got = false;
+  mic.classList.add('listening'); mic.textContent = '● listening'; setState('listening', true); animateWave(true); sfx('sweep', .3);
+  r.onresult = e => {
+    const res = e.results[e.results.length - 1]; const t = res[0].transcript;
+    caption(t, 'YOU', false);
+    if (res.isFinal && !got) { got = true; stopListening(); handle(t); }
+  };
+  r.onerror = e => { if (e.error !== 'no-speech' && e.error !== 'aborted') caption('Microphone: ' + e.error + '. You can type instead, ' + HON + '.', AI_NAME, false); };
+  r.onend = () => {
+    if (rec === r) { rec = null; mic.classList.remove('listening'); mic.textContent = '🎙 Ask'; }
+    if (!got && !speaking && !liveAbort) { animateWave(false); setState(liveOn ? 'live link open · press Ask to talk' : 'standing by', true); }
+  };
+  try { r.start(); } catch (e) { rec = null; }
+}
+if (!SR) { mic.disabled = true; mic.title = 'Speech recognition is not available in this browser; type instead.'; }
+else mic.addEventListener('click', () => { ensureAudioCtx(); if (rec) { stopListening(); setState('standing by', true); animateWave(false); return; } stopAll(); listen(); });
+
+liveBtn.addEventListener('click', () => {
+  ensureAudioCtx();
+  if (!liveReady) {
+    if (MODE === 'local') { caption('Connect Claude in ⚙ Connections to talk to me live, ' + HON + '. The briefing and quick answers work already.', AI_NAME, false); openConnections('in-llm'); }
+    else caption(MODE === 'static' ? 'Live mode needs the server: run npm start in the project folder.' : 'The live link is offline on this deployment, ' + HON + '. The recorded briefing still works.', AI_NAME, false);
+    return;
+  }
+  if (MODE === 'hosted' && !accessCode) { codeForm.hidden = false; document.getElementById('codeinput').focus(); caption('Live mode needs the access code, ' + HON + '.', AI_NAME, false); return; }
+  liveOn = !liveOn; paintLive(); stopAll();
+  if (liveOn) { caption('Live link open, ' + HON + '. Go ahead.', AI_NAME, false); listen(); }
+  else caption('Live link closed. Recorded answers only.', AI_NAME, false);
+});
+codeForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const v = document.getElementById('codeinput').value.trim(); if (!v) return;
+  accessCode = v; try { localStorage.setItem('jarvis-code', v); } catch (err) {}
+  document.getElementById('codeinput').value = ''; codeForm.hidden = true; paintLive();
+  if (!liveOn) liveBtn.click();
+});
+document.getElementById('brief').addEventListener('click', () => playClip('briefing'));
+document.getElementById('stop').addEventListener('click', () => { stopAll(); });
+document.querySelectorAll('.vbtn[data-intent]').forEach(b => b.addEventListener('click', () => playClip(b.dataset.intent)));
+document.getElementById('askform').addEventListener('submit', e => { e.preventDefault(); const i = document.getElementById('askinput'); ensureAudioCtx(); handle(i.value); i.value = ''; });
+
+/* ElevenLabs Conversational AI widget, when an agent exists */
+if (VOICE.agent_id) {
+  const w = document.createElement('elevenlabs-convai'); w.setAttribute('agent-id', VOICE.agent_id); document.getElementById('convai').appendChild(w);
+  const s = document.createElement('script'); s.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed'; s.async = true; document.body.appendChild(s);
+}
+
+/* ---------- boot sequence ---------- */
+const boot = document.getElementById('boot');
+const BOOT_LINES = ['loading workforce roster', 'mounting portal assets', 'voice interface: ' + (Object.keys(VOICE.clips || {}).length ? 'recorded' : 'browser voice'), 'all systems nominal'];
+function dismissBoot(withSound, withMusic = introOn) {
+  if (boot.classList.contains('hide')) return;
+  boot.classList.add('hide'); try { sessionStorage.setItem('roster-booted', '1'); } catch (e) {}
+  if (!withSound) return;
+  soundOn = true; try { localStorage.setItem('roster-sound', 'on'); } catch (e) {} paintSound();
+  if (withMusic) { sfx('boot', .3); playIntro(4500).then(() => playClip('greeting')); }
+  else { sfx('boot', .6); setTimeout(() => playClip('greeting'), 1800); }
+}
+let seen = false; try { seen = sessionStorage.getItem('roster-booted') === '1'; } catch (e) {}
+if (seen || reduced || BOOT_OFF) { boot.remove(); }
+else {
+  const lines = document.getElementById('boot-lines'); let i = 0;
+  const t = setInterval(() => { const d = document.createElement('div'); d.textContent = BOOT_LINES[i++]; lines.appendChild(d); if (i >= BOOT_LINES.length) clearInterval(t); }, 380);
+  document.getElementById('boot-go').addEventListener('click', () => dismissBoot(true));
+  document.getElementById('boot-quiet').addEventListener('click', () => dismissBoot(true, false));
+  document.getElementById('boot-skip').addEventListener('click', () => dismissBoot(false));
+  setTimeout(() => dismissBoot(false), 9000);
+}
+
+/* ---------- ⚙ Connections: keys, model, voice, identity, agents folder (local server only) ---------- */
+const connModal = document.getElementById('connmodal');
+let CONN = null;
+const val = id => (document.getElementById(id).value || '').trim();
+const selText = id => { const s = document.getElementById(id); return s.selectedIndex >= 0 ? s.options[s.selectedIndex].textContent.split(' · ')[0] : ''; };
+async function localApi(route, opts = {}) {
+  const r = await fetch('/api/local/' + route, { method: opts.method || 'GET', cache: 'no-store',
+    headers: { 'x-jarvis-local': '1', 'content-type': 'application/json' }, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok && !j.state && !j.log) throw new Error(j.error || ('HTTP ' + r.status));
+  return j;
+}
+function connLog(msg, kind = '') { const d = document.createElement('div'); d.className = kind; d.textContent = msg; document.getElementById('conn-log').prepend(d); }
+function paintConn(s) {
+  CONN = s;
+  document.getElementById('st-llm').textContent = s.anthropic.connected ? `connected · ${s.anthropic.masked}` : 'not connected — live conversation is off';
+  document.getElementById('dot-llm').className = 'dot' + (s.anthropic.connected ? ' on' : '');
+  document.getElementById('st-voice').textContent = s.elevenlabs.connected ? `connected · ${s.elevenlabs.masked}` : 'not connected — using the browser voice';
+  document.getElementById('dot-voice').className = 'dot' + (s.elevenlabs.connected ? ' on' : '');
+  const ms = document.getElementById('in-model');
+  ms.innerHTML = s.models.map(m => `<option value="${esc(m.id)}"${m.id === s.model ? ' selected' : ''}>${esc(m.label)}</option>`).join('');
+  if (!s.models.some(m => m.id === s.model)) ms.insertAdjacentHTML('beforeend', `<option value="${esc(s.model)}" selected>${esc(s.model)}</option>`);
+  const vs = document.getElementById('in-voiceid');
+  if (!vs.options.length || !s.elevenlabs.connected) vs.innerHTML = `<option value="${esc(s.voiceId)}">${esc(s.voiceName || s.voiceId)}</option>`;
+  for (const [id, v] of [['in-name', s.assistantName], ['in-hon', s.honorific], ['in-owner', s.ownerName], ['in-org', s.orgName], ['in-dir', s.agentsDir]]) {
+    const el = document.getElementById(id); el.value = s.configured || id === 'in-name' || id === 'in-hon' ? (v || '') : ''; if (!s.configured && id === 'in-owner') el.placeholder = 'Your name'; if (!s.configured && id === 'in-org') el.placeholder = 'Your company or team';
+  }
+  document.getElementById('conn-stats').textContent = `${s.demo ? 'Showing the demo roster' : 'Roster scanned ' + (s.lastScan || '—')} · ${s.clips} recorded voice clips · voice: ${s.voiceName || s.voiceId}`;
+  document.getElementById('conn-voicegen').disabled = !s.elevenlabs.connected;
+}
+async function loadVoices() {
+  if (!CONN || !CONN.elevenlabs.connected) return;
+  try {
+    const { voices } = await localApi('voices');
+    if (!voices || !voices.length) return;
+    const vs = document.getElementById('in-voiceid');
+    vs.innerHTML = voices.map(v => `<option value="${esc(v.id)}"${v.id === CONN.voiceId ? ' selected' : ''}>${esc(v.name)}${v.accent ? ' · ' + esc(v.accent) : ''}${v.category && v.category !== 'premade' ? ' · ' + esc(v.category) : ''}</option>`).join('');
+    if (!voices.some(v => v.id === CONN.voiceId)) vs.insertAdjacentHTML('afterbegin', `<option value="${esc(CONN.voiceId)}" selected>${esc(CONN.voiceName || CONN.voiceId)}</option>`);
+  } catch (e) {}
+}
+function openConnections(focus) {
+  connModal.hidden = false; document.body.classList.add('modal-open'); sfx('blip', .4);
+  const local = MODE === 'local';
+  document.getElementById('conn-local').hidden = !local;
+  document.getElementById('conn-actions').hidden = !local;
+  document.getElementById('conn-foot').hidden = !local;
+  document.getElementById('conn-hosted').hidden = MODE !== 'hosted';
+  document.getElementById('conn-static').hidden = !(MODE === 'static' || MODE === 'unknown');
+  if (!local) { document.getElementById('conn-stats').textContent = MODE === 'hosted' ? `Hosted · brain ${modelLabel(STATUS.model)} · voice ${STATUS.voice ? 'ElevenLabs' : 'browser'}` : 'Static file'; return; }
+  localApi('state').then(s => { paintConn(s); loadVoices(); if (focus) setTimeout(() => document.getElementById(focus).focus(), 50); })
+    .catch(e => connLog('Could not read the local server state: ' + e.message, 'err'));
+}
+function closeConnections() { connModal.hidden = true; document.body.classList.remove('modal-open'); }
+document.getElementById('connect').addEventListener('click', () => openConnections());
+document.getElementById('conn-close').addEventListener('click', closeConnections);
+connModal.addEventListener('click', e => { if (e.target === connModal) closeConnections(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && !connModal.hidden) closeConnections(); });
+
+document.getElementById('connform').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (MODE !== 'local') return;
+  const btn = document.getElementById('conn-save'); btn.disabled = true; btn.textContent = 'Testing…';
+  const before = CONN ? [CONN.assistantName, CONN.honorific, CONN.ownerName, CONN.orgName, CONN.agentsDir].join('|') : '';
+  const body = { model: val('in-model'), voiceId: val('in-voiceid'), voiceName: selText('in-voiceid'), assistantName: val('in-name'), honorific: val('in-hon'),
+    ownerName: val('in-owner'), orgName: val('in-org'), agentsDir: val('in-dir') };
+  const ak = val('in-llm'), ek = val('in-voice');
+  if (ak) body.anthropicKey = ak;
+  if (ek) body.elevenlabsKey = ek;
+  try {
+    const { results, state } = await localApi('connect', { method: 'POST', body });
+    document.getElementById('in-llm').value = ''; document.getElementById('in-voice').value = '';
+    const names = { anthropic: 'Claude', elevenlabs: 'ElevenLabs', agentsDir: 'Agents folder', scan: 'Scan' };
+    for (const [k, r] of Object.entries(results || {})) {
+      if (k === 'scan') connLog(`Scan: ${(r.out || '').split('\n')[0] || 'done'}`, r.code === 0 || r.code === 3 ? 'ok' : 'err');
+      else connLog(`${names[k] || k}: ${r.message}`, r.ok ? 'ok' : 'err');
+    }
+    if (!Object.keys(results || {}).length) connLog('Saved.', 'ok');
+    paintConn(state); loadVoices(); await refreshStatus();
+    const after = [state.assistantName, state.honorific, state.ownerName, state.orgName, state.agentsDir].join('|');
+    if (after !== before) { connLog('Rebuilding the dashboard with your changes…'); setTimeout(() => location.reload(), 1400); }
+  } catch (err) { connLog('Save failed: ' + err.message, 'err'); }
+  btn.disabled = false; btn.textContent = 'Save & test';
+});
+document.getElementById('conn-test').addEventListener('click', async () => {
+  try {
+    const r = await localApi('test', { method: 'POST' });
+    connLog(`Claude: ${r.anthropic.message}`, r.anthropic.ok ? 'ok' : 'err');
+    connLog(`ElevenLabs: ${r.elevenlabs.message}`, r.elevenlabs.ok ? 'ok' : 'err');
+  } catch (e) { connLog('Test failed: ' + e.message, 'err'); }
+});
+document.querySelectorAll('[data-disconnect]').forEach(a => a.addEventListener('click', async e => {
+  e.preventDefault();
+  try { const { state } = await localApi('connect', { method: 'POST', body: { disconnect: a.dataset.disconnect } }); paintConn(state); await refreshStatus(); connLog(`${a.dataset.disconnect === 'anthropic' ? 'Claude' : 'ElevenLabs'} disconnected — key removed from .env.`); }
+  catch (err) { connLog('Disconnect failed: ' + err.message, 'err'); }
+}));
+document.getElementById('conn-rescan').addEventListener('click', async () => {
+  const b = document.getElementById('conn-rescan'); b.disabled = true; b.textContent = '⟳ Scanning…';
+  try {
+    const r = await localApi('rescan', { method: 'POST' });
+    connLog(r.log || 'Scan finished.', r.code === 0 || r.code === 3 ? 'ok' : 'err');
+    if (r.code === 0 || r.code === 3) setTimeout(() => location.reload(), 1400);
+  } catch (e) { connLog('Rescan failed: ' + e.message, 'err'); }
+  b.disabled = false; b.textContent = '⟳ Rescan agents';
+});
+document.getElementById('conn-voicegen').addEventListener('click', async () => {
+  const b = document.getElementById('conn-voicegen'); b.disabled = true; b.textContent = '♪ Recording… (about a minute)';
+  try {
+    const r = await localApi('voice', { method: 'POST' });
+    connLog((r.log || '').split('\n').slice(-2).join(' '), r.code ? 'err' : 'ok');
+    if (!r.code) setTimeout(() => location.reload(), 1400);
+  } catch (e) { connLog('Recording failed: ' + e.message, 'err'); }
+  b.disabled = false; b.textContent = '♪ Record voice clips';
+});
+document.getElementById('conn-code-save').addEventListener('click', () => {
+  const v = val('conn-code'); if (!v) return;
+  accessCode = v; try { localStorage.setItem('jarvis-code', v); } catch (e) {}
+  document.getElementById('conn-code').value = ''; paintLive(); closeConnections();
+  caption(`Access code saved. Press Live to talk, ${HON}.`, AI_NAME, false);
+});
+
+/* roster changed on disk (auto-rescan or Connections) → offer a reload */
+function showToast(html) { const t = document.getElementById('toast'); t.innerHTML = html; t.hidden = false; }
+setInterval(async () => {
+  if (MODE !== 'local') return;
+  try {
+    const j = await (await fetch('/api/jarvis', { cache: 'no-store' })).json();
+    if (j.built && j.built !== PAGE_BUILT) showToast('Roster updated from your agents folder · <a href="#" onclick="location.reload();return false">reload</a>');
+  } catch (e) {}
+}, 60000);
+/* first run: the ⚙ button pulses gold and the console footer links to Connections until Claude is connected */
+
+render();
+refreshStatus();
+</script>
+<noscript><p style="padding:16px">This page needs JavaScript to render the roster.</p></noscript>
+</body>
+</html>

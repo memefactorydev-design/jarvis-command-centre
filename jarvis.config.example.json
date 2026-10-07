@@ -1,0 +1,22 @@
+{
+  "assistantName": "JARVIS",
+  "honorific": "sir",
+  "orgName": "My AI Workforce",
+  "owner": {
+    "name": "Your Name",
+    "label": "Owner · sole authority on agent behaviour",
+    "line": "Approves every policy change and every agent that goes live."
+  },
+  "tagline": "",
+  "agentsDir": "~/Projects/Agents",
+  "extraDirs": [],
+  "includeUserAgents": true,
+  "includeScheduledTasks": true,
+  "model": "claude-sonnet-5-5",
+  "voiceId": "onwK4e9ZLuTAKqWW03F9",
+  "voiceName": "Daniel",
+  "ttsModel": "eleven_flash_v2_5",
+  "port": 7777,
+  "autoRescanHours": 24,
+  "vercelProject": ""
+}
